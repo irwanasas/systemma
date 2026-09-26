@@ -1,22 +1,15 @@
 import { AppHeader } from "@/components/layout/app-header";
+import { navLinksByRole } from "@/components/layout/nav-links";
 import { requireRole } from "@/lib/auth/require-role";
 
-const adminLinks = [
-  { href: "/dashboard", label: "Dasbor" },
-  { href: "/products", label: "Produk" },
-  { href: "/po-batches", label: "Batch PO" },
-  { href: "/agents", label: "Agen" },
-  { href: "/change-password", label: "Ganti password" },
-];
-
-const AdminLayout = async ({ children }: LayoutProps<"/">): Promise<React.ReactNode> => {
+const RoleLayout = async ({ children }: LayoutProps<"/">): Promise<React.ReactNode> => {
   const user = await requireRole("admin");
   return (
     <>
-      <AppHeader fullName={user.fullName} links={adminLinks} />
+      <AppHeader fullName={user.fullName} links={navLinksByRole.admin} />
       {children}
     </>
   );
 };
 
-export default AdminLayout;
+export default RoleLayout;

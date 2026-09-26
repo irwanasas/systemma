@@ -4,7 +4,7 @@ import { getAdminClient } from "@/lib/supabase/admin";
 import type { OrderDetail, OrderStatus, OrderSummary } from "@/features/orders/types";
 
 const ORDER_SUMMARY_SELECT =
-  "id, number, status, subtotal, dp_amount, settlement_amount, dp_due_at, eta_at, created_at, agent_id, po_batches!inner(label, products!inner(name))";
+  "id, number, status, subtotal, dp_amount, settlement_amount, dp_due_at, eta_at, created_at, agent_id, dp_received_at, settled_at, shipped_at, po_batches!inner(label, products!inner(name)), agents!inner(code, city, users!inner(full_name, phone))";
 
 type OrderSummaryRow = {
   id: string;
@@ -17,12 +17,18 @@ type OrderSummaryRow = {
   eta_at: string | null;
   created_at: string;
   agent_id: string;
+  dp_received_at: string | null;
+  settled_at: string | null;
+  shipped_at: string | null;
   po_batches: { label: string; products: { name: string } };
+  agents: { code: string; city: string | null; users: { full_name: string; phone: string | null } };
 };
 
 const toOrderSummary = (row: OrderSummaryRow): OrderSummary => ({
   id: row.id,
   number: row.number,
+  agentName: row.agents.users.full_name,
+  agentCode: row.agents.code,
   status: row.status,
   productName: row.po_batches.products.name,
   batchLabel: row.po_batches.label,
@@ -41,6 +47,13 @@ export const listAgentOrders = async (agentId: string): Promise<OrderSummary[]> 
     .eq("agent_id", agentId)
     .order("created_at", { ascending: false })
     .returns<OrderSummaryRow[]>();
+  if (error) throw error;
+  return data.map(toOrderSummary);
+};
+
+export const listAllOrders = async (status: OrderStatus | null): Promise<OrderSummary[]> => {
+  const query = getAdminClient().from("orders").select(ORDER_SUMMARY_SELECT).order("created_at", { ascending: false }).limit(200);
+  const { data, error } = await (status ? query.eq("status", status) : query).returns<OrderSummaryRow[]>();
   if (error) throw error;
   return data.map(toOrderSummary);
 };
@@ -67,6 +80,11 @@ export const getOrderDetail = async (orderId: string): Promise<OrderDetail | nul
   return {
     ...toOrderSummary(order),
     agentId: order.agent_id,
+    agentPhone: order.agents.users.phone,
+    agentCity: order.agents.city,
+    dpReceivedAt: order.dp_received_at,
+    settledAt: order.settled_at,
+    shippedAt: order.shipped_at,
     items: items.map((item) => ({
       id: item.id,
       productName: item.product_name,

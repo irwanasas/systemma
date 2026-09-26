@@ -162,6 +162,25 @@ isOneToOne: true
                   Relationships: [
                     
                   ]
+                },"invoices": {
+                  Row: {
+                    "id": string,"issued_at": string,"number": string,"order_id": string,"settled_at": string | null
+                  }
+                  Insert: {
+                    "id"?: string,"issued_at"?: string,"number": string,"order_id": string,"settled_at"?: string | null
+                  }
+                  Update: {
+                    "id"?: string,"issued_at"?: string,"number"?: string,"order_id"?: string,"settled_at"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "invoices_order_id_fkey"
+      columns: ["order_id"]
+isOneToOne: true
+      referencedRelation: "orders"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"login_attempts": {
                   Row: {
                     "created_at": string,"ip": unknown,"succeeded": boolean,"username": string
@@ -247,6 +266,31 @@ isOneToOne: false
       columns: ["po_batch_id"]
 isOneToOne: false
       referencedRelation: "po_batches"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"payments": {
+                  Row: {
+                    "amount": number,"created_at": string,"id": string,"idempotency_key": string,"method": string,"order_id": string,"proof_path": string | null,"purpose": string,"reject_reason": string | null,"status": string,"verified_at": string | null,"verified_by": string | null
+                  }
+                  Insert: {
+                    "amount": number,"created_at"?: string,"id"?: string,"idempotency_key": string,"method"?: string,"order_id": string,"proof_path"?: string | null,"purpose": string,"reject_reason"?: string | null,"status"?: string,"verified_at"?: string | null,"verified_by"?: string | null
+                  }
+                  Update: {
+                    "amount"?: number,"created_at"?: string,"id"?: string,"idempotency_key"?: string,"method"?: string,"order_id"?: string,"proof_path"?: string | null,"purpose"?: string,"reject_reason"?: string | null,"status"?: string,"verified_at"?: string | null,"verified_by"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "payments_order_id_fkey"
+      columns: ["order_id"]
+isOneToOne: false
+      referencedRelation: "orders"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "payments_verified_by_fkey"
+      columns: ["verified_by"]
+isOneToOne: false
+      referencedRelation: "users"
       referencedColumns: ["id"]
     }
                   ]
@@ -468,11 +512,20 @@ isOneToOne: false
 "dp_amount_for":
 { Args: { "p_subtotal": number }; Returns: number
                            },
+"expire_unpaid_orders":
+{ Args: Record<PropertyKey, never>; Returns: number
+                           },
+"mark_settled":
+{ Args: { "p_actor_id": string,"p_order_id": string }; Returns: undefined
+                           },
 "next_document_number":
 { Args: { "p_prefix": string }; Returns: string
                            },
 "notify_admins":
 { Args: { "p_kind": string,"p_payload": Json }; Returns: undefined
+                           },
+"order_transition":
+{ Args: { "p_actor_id": string,"p_order_id": string,"p_to_status": Database["public"]['Enums']["order_status"] }; Returns: undefined
                            },
 "order_transition_allowed":
 { Args: { "p_from": Database["public"]['Enums']["order_status"],"p_to": Database["public"]['Enums']["order_status"] }; Returns: boolean
@@ -482,8 +535,14 @@ isOneToOne: false
               "batch_label": string,"cart_item_id": string,"color_name": string,"custom_chest_cm": number,"custom_length_cm": number,"is_orderable": boolean,"line_total": number,"po_batch_id": string,"product_id": string,"product_name": string,"qty": number,"size_code": string,"unit_price": number,"variant_id": string
             }[]
                            },
+"review_dp":
+{ Args: { "p_actor_id": string,"p_approve": boolean,"p_payment_id": string,"p_reason"?: string }; Returns: undefined
+                           },
 "setting":
 { Args: { "p_key": string }; Returns: Json
+                           },
+"submit_dp_proof":
+{ Args: { "p_actor_id": string,"p_amount": number,"p_idempotency_key": string,"p_order_id": string,"p_proof_path": string }; Returns: string
                            },
 "sync_product_variants":
 { Args: { "p_product_id": string }; Returns: undefined

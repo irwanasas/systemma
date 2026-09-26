@@ -11,9 +11,14 @@ export const requireUser = async (): Promise<CurrentUser> => {
   return user;
 };
 
-export const requireRole = async (role: AppRole): Promise<CurrentUser> => {
+export const requireActiveUser = async (): Promise<CurrentUser> => {
   const user = await requireUser();
   if (user.mustChangePassword) redirect("/change-password");
+  return user;
+};
+
+export const requireRole = async (role: AppRole): Promise<CurrentUser> => {
+  const user = await requireActiveUser();
   if (user.role !== role) redirect(homePathFor(user.role));
   return user;
 };

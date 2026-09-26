@@ -13,7 +13,7 @@
     "test:db": "supabase test db",
     "db:reset": "supabase db reset && psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -q -v ON_ERROR_STOP=1 -f supabase/seed.sql",
     "db:types": "supabase gen types typescript --local > lib/supabase/database.types.ts",
-    "db:start": "supabase start -x gotrue,realtime,storage-api,imgproxy,studio,postgres-meta,logflare,vector,supavisor,edge-runtime,mailpit"
+    "db:start": "supabase start -x gotrue,realtime,imgproxy,studio,postgres-meta,logflare,vector,supavisor,edge-runtime,mailpit"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.2",

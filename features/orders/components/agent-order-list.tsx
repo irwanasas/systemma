@@ -1,17 +1,15 @@
 import Link from "next/link";
-import { listAgentOrders } from "@/features/orders/server/queries";
-import { orderStatusLabels } from "@/features/orders/types";
-import { requireRole } from "@/lib/auth/require-role";
+import { orderStatusLabels, type OrderSummary } from "@/features/orders/types";
 import { formatDateTime } from "@/lib/dates";
 import { formatRupiah } from "@/lib/money";
 
-const OrdersPage = async ({ searchParams }: PageProps<"/orders">): Promise<React.ReactNode> => {
-  const user = await requireRole("agent");
-  const { placed } = await searchParams;
-  const orders = await listAgentOrders(user.id);
-  const placedNumbers = typeof placed === "string" ? placed.split(",") : [];
-  const placedOrders = orders.filter(({ number }) => placedNumbers.includes(number));
+type AgentOrderListProps = {
+  orders: OrderSummary[];
+  placedNumbers: string[];
+};
 
+export const AgentOrderList = ({ orders, placedNumbers }: AgentOrderListProps): React.ReactNode => {
+  const placedOrders = orders.filter(({ number }) => placedNumbers.includes(number));
   return (
     <main>
       <h1>Pesanan</h1>
@@ -63,5 +61,3 @@ const OrdersPage = async ({ searchParams }: PageProps<"/orders">): Promise<React
     </main>
   );
 };
-
-export default OrdersPage;

@@ -1,5 +1,5 @@
 begin;
-select plan(4);
+select plan(5);
 
 select is_empty(
   $$ select c.relname from pg_class c join pg_namespace n on n.oid = c.relnamespace
@@ -27,6 +27,14 @@ select is_empty(
        and (has_function_privilege('anon', p.oid, 'execute')
             or has_function_privilege('authenticated', p.oid, 'execute')) $$,
   'anon and authenticated cannot execute any app function'
+);
+
+select is_empty(
+  $$ select t from unnest(array['orders', 'order_items', 'payments', 'invoices', 'carts', 'cart_items']) t
+     where has_table_privilege('service_role', t, 'insert')
+        or has_table_privilege('service_role', t, 'update')
+        or has_table_privilege('service_role', t, 'delete') $$,
+  'orders, items, payments, invoices and carts are written only through RPCs'
 );
 
 select * from finish();

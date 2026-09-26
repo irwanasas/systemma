@@ -41,3 +41,12 @@
 - RPCs: `cart_upsert_item`, `cart_remove_item`, `cart_clear`, `checkout_cart` (split per batch, price snapshot, idempotent, notifies admins), `cancel_order` (owner, before DP only).
 - Agent: order grid and custom-size form on the product page, cart grouped by batch with DP preview, checkout with R-06 confirmation, orders list and detail, cancel.
 - Tests: pgTAP (cart rules, split, DP rounding, snapshot, idempotency, notifications, cancel rules, K-02 grants), e2e (grid → custom → two-batch checkout → two orders; cancel; other agent gets 404).
+
+## F4 — Payments and fulfilment
+
+- Tables: payments, invoices; private Storage bucket `payment-proofs`.
+- RPCs: `submit_dp_proof`, `review_dp` (approve → invoice + ETA; reject → reason + fresh 24h), `order_transition`, `mark_settled`, `expire_unpaid_orders` (pg_cron every 5 minutes).
+- Agent: bank accounts, DP deadline, proof upload (file or camera), rejection reason, status timeline, payment history, invoice.
+- Admin: order list with status filter, order detail with next-step buttons and settlement, DP review queue (one at a time, proof preview, expected vs submitted amount).
+- `/orders` moved to a shared route group (ADR 0005).
+- Tests: pgTAP full status graph (all 100 status pairs, forbidden transitions, idempotency, expiry, deadline), unit (proof file signatures), e2e (checkout → reject → re-upload → approve → production → settlement → shipped → completed; disguised file rejected).

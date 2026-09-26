@@ -16,9 +16,24 @@ export const orderStatusLabels: Record<OrderStatus, string> = {
   EXPIRED: "Kedaluwarsa",
 };
 
+export const ORDER_STATUSES = Object.keys(orderStatusLabels) as OrderStatus[];
+
+export const MAIN_STATUS_PATH: OrderStatus[] = [
+  "AWAITING_DP",
+  "DP_UNDER_REVIEW",
+  "DP_RECEIVED",
+  "IN_PRODUCTION",
+  "AWAITING_SETTLEMENT",
+  "SETTLED",
+  "SHIPPED",
+  "COMPLETED",
+];
+
 export type OrderSummary = {
   id: string;
   number: string;
+  agentName: string;
+  agentCode: string;
   status: OrderStatus;
   productName: string;
   batchLabel: string;
@@ -44,5 +59,10 @@ export type OrderItem = {
 
 export type OrderDetail = OrderSummary & {
   agentId: string;
+  agentPhone: string | null;
+  agentCity: string | null;
+  dpReceivedAt: string | null;
+  settledAt: string | null;
+  shippedAt: string | null;
   items: OrderItem[];
 };

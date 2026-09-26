@@ -1,10 +1,6 @@
 import Link from "next/link";
 import { logout } from "@/features/auth/server/actions";
-
-type NavLink = {
-  href: string;
-  label: string;
-};
+import type { NavLink } from "@/components/layout/nav-links";
 
 type AppHeaderProps = {
   fullName: string;

@@ -26,7 +26,15 @@ const rpcErrorMessages: Record<string, string> = {
   CART_HAS_UNAVAILABLE_ITEMS: "Ada barang yang sudah tidak tersedia. Hapus barang bertanda “tidak tersedia” lalu coba lagi.",
   ORDER_NOT_FOUND: "Pesanan tidak ditemukan.",
   ORDER_NOT_CANCELLABLE: "Pesanan ini tidak bisa dibatalkan karena bukti DP sudah dikirim atau diproses.",
-  INVALID_STATUS_TRANSITION: "Status pesanan tidak bisa diubah ke tahap itu.",
+  INVALID_STATUS_TRANSITION: "Status pesanan tidak bisa diubah ke tahap itu. Muat ulang halaman untuk melihat status terbaru.",
+  IDEMPOTENCY_KEY_REUSED: "Formulir ini sudah dipakai untuk pesanan lain. Muat ulang halaman lalu coba lagi.",
+  ORDER_NOT_AWAITING_DP: "Pesanan ini tidak sedang menunggu DP, jadi bukti tidak perlu diunggah lagi.",
+  DP_DEADLINE_PASSED: "Batas waktu pembayaran DP sudah lewat, jadi pesanan tidak bisa dilanjutkan.",
+  INVALID_AMOUNT: "Nominal transfer harus lebih dari 0.",
+  INVALID_PROOF_PATH: "Bukti transfer gagal disimpan. Silakan unggah ulang.",
+  PAYMENT_NOT_FOUND: "Pembayaran tidak ditemukan.",
+  PAYMENT_ALREADY_REVIEWED: "Pembayaran ini sudah diperiksa admin lain. Muat ulang halaman.",
+  REJECT_REASON_REQUIRED: "Tulis alasan penolakan agar agen tahu apa yang harus diperbaiki.",
 };
 
 type RpcError = { message: string };
