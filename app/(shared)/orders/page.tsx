@@ -1,9 +1,9 @@
 import { AdminOrderList } from "@/features/orders/components/admin-order-list";
 import { AgentOrderList } from "@/features/orders/components/agent-order-list";
-import { listAgentOrders, listAllOrders } from "@/features/orders/server/queries";
+import { listAgentOrders, searchOrders } from "@/features/orders/server/queries";
 import { ORDER_STATUSES } from "@/features/orders/types";
 import { requireActiveUser } from "@/lib/auth/require-role";
-import { matchesQuery, paginate, readParam } from "@/lib/list-params";
+import { readParam } from "@/lib/list-params";
 
 const PAGE_SIZE = 20;
 
@@ -15,10 +15,12 @@ const OrdersPage = async ({ searchParams }: PageProps<"/orders">): Promise<React
     const statusParam = readParam(params.status);
     const status = ORDER_STATUSES.find((option) => option === statusParam) ?? null;
     const query = readParam(params.q);
-    const orders = (await listAllOrders(status)).filter((order) =>
-      matchesQuery(query, order.number, order.agentName, order.agentCode, order.productName),
-    );
-    return <AdminOrderList result={paginate(orders, readParam(params.page), PAGE_SIZE)} status={status} query={query} />;
+    const requested = Math.max(1, Number.parseInt(readParam(params.page) ?? "1", 10) || 1);
+    let result = await searchOrders({ status, query, page: requested, pageSize: PAGE_SIZE });
+    const pageCount = Math.max(1, Math.ceil(result.total / PAGE_SIZE));
+    const page = Math.min(requested, pageCount);
+    if (page !== requested) result = await searchOrders({ status, query, page, pageSize: PAGE_SIZE });
+    return <AdminOrderList result={{ ...result, page, pageCount }} status={status} query={query} />;
   }
 
   const placed = readParam(params.placed);

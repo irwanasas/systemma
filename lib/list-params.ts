@@ -29,3 +29,6 @@ export const matchesQuery = (query: string | undefined, ...fields: (string | nul
   const needle = query.toLocaleLowerCase("id-ID");
   return fields.some((field) => field?.toLocaleLowerCase("id-ID").includes(needle));
 };
+
+export const toSearchTerm = (query: string | undefined): string =>
+  (query ?? "").replace(/[%_*,()"\\]/g, " ").replace(/\s+/g, " ").trim();

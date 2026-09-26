@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildHref, matchesQuery, paginate, readParam } from "@/lib/list-params";
+import { buildHref, matchesQuery, paginate, readParam, toSearchTerm } from "@/lib/list-params";
 
 describe("list params", () => {
   it("reads the first trimmed value", () => {
@@ -25,5 +25,11 @@ describe("list params", () => {
     expect(matchesQuery("siti", "AUR-1", "Siti Rahmawati")).toBe(true);
     expect(matchesQuery("xyz", "AUR-1", null)).toBe(false);
     expect(matchesQuery(undefined, "anything")).toBe(true);
+  });
+
+  it("strips characters that would break a PostgREST filter", () => {
+    expect(toSearchTerm(" AUR-2026,(x)*%_ ")).toBe("AUR-2026 x");
+    expect(toSearchTerm("Ny. Siti\\")).toBe("Ny. Siti");
+    expect(toSearchTerm(undefined)).toBe("");
   });
 });

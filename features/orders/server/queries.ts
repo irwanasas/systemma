@@ -1,5 +1,6 @@
 import "server-only";
 import { toRupiah } from "@/lib/money";
+import { toSearchTerm } from "@/lib/list-params";
 import { getAdminClient } from "@/lib/supabase/admin";
 import type { OrderDetail, OrderStatus, OrderSummary } from "@/features/orders/types";
 
@@ -51,11 +52,49 @@ export const listAgentOrders = async (agentId: string): Promise<OrderSummary[]> 
   return data.map(toOrderSummary);
 };
 
-export const listAllOrders = async (status: OrderStatus | null): Promise<OrderSummary[]> => {
-  const query = getAdminClient().from("orders").select(ORDER_SUMMARY_SELECT).order("created_at", { ascending: false }).limit(200);
-  const { data, error } = await (status ? query.eq("status", status) : query).returns<OrderSummaryRow[]>();
+export type OrderSearch = { status: OrderStatus | null; query: string | undefined; page: number; pageSize: number };
+
+export type OrderSearchResult = { items: OrderSummary[]; total: number };
+
+const findSearchMatches = async (term: string): Promise<{ agentIds: string[]; batchIds: string[] }> => {
+  const supabase = getAdminClient();
+  const pattern = `%${term}%`;
+  const [byCode, byName, products] = await Promise.all([
+    supabase.from("agents").select("user_id").ilike("code", pattern),
+    supabase.from("users").select("id").eq("role", "agent").ilike("full_name", pattern),
+    supabase.from("products").select("id").ilike("name", pattern),
+  ]);
+  for (const { error } of [byCode, byName, products]) if (error) throw error;
+  const productIds = (products.data ?? []).map(({ id }) => id);
+  const batches = productIds.length
+    ? await supabase.from("po_batches").select("id").in("product_id", productIds)
+    : { data: [], error: null };
+  if (batches.error) throw batches.error;
+  return {
+    agentIds: [...new Set([...(byCode.data ?? []).map(({ user_id }) => user_id), ...(byName.data ?? []).map(({ id }) => id)])],
+    batchIds: (batches.data ?? []).map(({ id }) => id),
+  };
+};
+
+export const searchOrders = async ({ status, query, page, pageSize }: OrderSearch): Promise<OrderSearchResult> => {
+  const term = toSearchTerm(query);
+  let request = getAdminClient()
+    .from("orders")
+    .select(ORDER_SUMMARY_SELECT, { count: "exact" })
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false })
+    .range((page - 1) * pageSize, page * pageSize - 1);
+  if (status) request = request.eq("status", status);
+  if (term) {
+    const { agentIds, batchIds } = await findSearchMatches(term);
+    const filters = [`number.ilike."*${term}*"`];
+    if (agentIds.length) filters.push(`agent_id.in.(${agentIds.join(",")})`);
+    if (batchIds.length) filters.push(`po_batch_id.in.(${batchIds.join(",")})`);
+    request = request.or(filters.join(","));
+  }
+  const { data, error, count } = await request.returns<OrderSummaryRow[]>();
   if (error) throw error;
-  return data.map(toOrderSummary);
+  return { items: data.map(toOrderSummary), total: count ?? 0 };
 };
 
 export const getOrderDetail = async (orderId: string): Promise<OrderDetail | null> => {

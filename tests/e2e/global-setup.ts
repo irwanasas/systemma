@@ -21,6 +21,7 @@ const testUsers: TestUser[] = [
   { username: "e2e-notify", role: "agent", mustChangePassword: false },
   { username: "e2e-a11y", role: "agent", mustChangePassword: false },
   { username: "e2e-recap", role: "agent", mustChangePassword: false },
+  { username: "e2e-pager", role: "agent", mustChangePassword: false },
 ];
 
 const E2E_USERS = "(select id from users where username like 'e2e-%')";
