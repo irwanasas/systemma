@@ -81,23 +81,31 @@ export const listCategories = async (): Promise<Category[]> => {
 export type AdminProductListItem = {
   id: string;
   name: string;
+  slug: string;
+  categoryId: string;
   categoryName: string;
   status: ProductStatus;
   openBatchLabel: string | null;
+  colors: { name: string; hex: string | null }[];
 };
 
 export const listAdminProducts = async (): Promise<AdminProductListItem[]> => {
   const { data, error } = await getAdminClient()
     .from("products")
-    .select("id, name, status, categories!inner(name), po_batches(label, status)")
+    .select("id, name, slug, category_id, status, categories!inner(name), po_batches(label, status), product_colors(name, hex, sort)")
     .order("name");
   if (error) throw error;
-  return data.map(({ id, name, status, categories, po_batches }) => ({
+  return data.map(({ id, name, slug, category_id, status, categories, po_batches, product_colors }) => ({
     id,
     name,
+    slug,
+    categoryId: category_id,
     categoryName: categories.name,
     status: status as ProductStatus,
     openBatchLabel: po_batches.find((batch) => batch.status === "open")?.label ?? null,
+    colors: [...product_colors]
+      .sort((first, second) => first.sort - second.sort || first.name.localeCompare(second.name))
+      .map(({ name: colorName, hex }) => ({ name: colorName, hex })),
   }));
 };
 

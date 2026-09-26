@@ -19,6 +19,7 @@ type ActionFormProps = {
   tone?: Tone;
   icon?: React.ReactNode;
   hideLabel?: boolean;
+  shortLabel?: string;
   className?: string;
   buttonClassName?: string;
   children?: React.ReactNode;
@@ -43,6 +44,7 @@ export const ActionForm = ({
   tone = "primary",
   icon,
   hideLabel = false,
+  shortLabel,
   className,
   buttonClassName,
   children,
@@ -83,12 +85,12 @@ export const ActionForm = ({
         type="submit"
         variant={buttonVariantByTone[tone]}
         disabled={isPending}
-        aria-label={hideLabel ? submitLabel : undefined}
+        aria-label={hideLabel || shortLabel ? submitLabel : undefined}
         title={hideLabel ? submitLabel : undefined}
         className={cn("min-h-[var(--control-height)] px-4 text-ui font-semibold", hideLabel && "px-2", buttonClassName)}
       >
         {isPending ? <CircleNotch aria-hidden="true" className="animate-spin" /> : icon}
-        {!hideLabel && (isPending ? pendingLabel : submitLabel)}
+        {!hideLabel && (isPending ? pendingLabel : (shortLabel ?? submitLabel))}
       </Button>
       {confirmMessage && (
         <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>

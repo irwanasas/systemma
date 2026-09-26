@@ -6,7 +6,7 @@ type ProductFieldsProps = {
 };
 
 export const ProductFields = ({ categories, product }: ProductFieldsProps): React.ReactNode => (
-  <>
+  <div className="grid gap-4 sm:grid-cols-2">
     {product && <input type="hidden" name="id" value={product.id} />}
     <div>
       <label htmlFor="name">Nama seri</label>
@@ -30,10 +30,6 @@ export const ProductFields = ({ categories, product }: ProductFieldsProps): Reac
       </select>
     </div>
     <div>
-      <label htmlFor="description">Deskripsi (opsional)</label>
-      <textarea id="description" name="description" defaultValue={product?.description ?? ""} />
-    </div>
-    <div>
       <label htmlFor="status">Status</label>
       <select id="status" name="status" defaultValue={product?.status ?? "draft"}>
         {PRODUCT_STATUSES.map((status) => (
@@ -43,7 +39,11 @@ export const ProductFields = ({ categories, product }: ProductFieldsProps): Reac
         ))}
       </select>
     </div>
-    <fieldset>
+    <div className="sm:col-span-2">
+      <label htmlFor="description">Deskripsi (opsional)</label>
+      <textarea id="description" name="description" defaultValue={product?.description ?? ""} className="!max-w-none" />
+    </div>
+    <fieldset className="sm:col-span-2">
       <legend>Custom ukuran</legend>
       <div>
         <input id="customSizeEnabled" name="customSizeEnabled" type="checkbox" defaultChecked={product?.customSizeEnabled} />
@@ -57,8 +57,9 @@ export const ProductFields = ({ categories, product }: ProductFieldsProps): Reac
           inputMode="numeric"
           defaultValue={product?.customUnitPrice ?? ""}
           placeholder="350.000"
+          className="sm:!max-w-60"
         />
       </div>
     </fieldset>
-  </>
+  </div>
 );
