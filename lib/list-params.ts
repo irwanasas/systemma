@@ -32,3 +32,18 @@ export const matchesQuery = (query: string | undefined, ...fields: (string | nul
 
 export const toSearchTerm = (query: string | undefined): string =>
   (query ?? "").replace(/[%_*,()"\\]/g, " ").replace(/\s+/g, " ").trim();
+
+export const PAGE_SIZES = [10, 20, 50] as const;
+
+export const readPageSize = (value: string | undefined, fallback: number): number => {
+  const size = Number(value);
+  return (PAGE_SIZES as readonly number[]).includes(size) ? size : fallback;
+};
+
+export const readPage = (value: string | undefined): number => Math.max(1, Number.parseInt(value ?? "1", 10) || 1);
+
+export const pageRange = (page: number, pageSize: number, total: number): { from: number; to: number; pageCount: number } => ({
+  from: total === 0 ? 0 : (page - 1) * pageSize + 1,
+  to: Math.min(page * pageSize, total),
+  pageCount: Math.max(1, Math.ceil(total / pageSize)),
+});

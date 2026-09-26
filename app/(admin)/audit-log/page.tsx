@@ -1,8 +1,5 @@
-import Link from "next/link";
 import type { Icon } from "@phosphor-icons/react";
 import {
-  CaretLeft,
-  CaretRight,
   ClockCounterClockwise,
   Gear,
   Megaphone,
@@ -13,14 +10,14 @@ import {
   CalendarBlank,
   User,
 } from "@phosphor-icons/react/ssr";
-import { Button } from "@/components/ui/button";
+import { ListFilterSelect, ListPager, ListSearch } from "@/components/ui/list-controls";
 import { DateTime } from "@/components/ui/date-time";
 import { EmptyState } from "@/components/ui/empty-state";
 import { TableCard } from "@/components/ui/table-card";
-import { auditActionLabel, auditEntityLabel } from "@/features/audit/labels";
-import { AUDIT_PAGE_SIZE, listAuditActors, listAuditEntities, listAuditLogs } from "@/features/audit/server/queries";
+import { auditActionLabel, auditActionsMatching, auditEntityLabel } from "@/features/audit/labels";
+import { listAuditActors, listAuditEntities, listAuditLogs } from "@/features/audit/server/queries";
 import { requireRole } from "@/lib/auth/require-role";
-import { buildHref, readParam } from "@/lib/list-params";
+import { pageRange, readPage, readPageSize, readParam } from "@/lib/list-params";
 
 const entityIcons: Record<string, Icon> = {
   announcement: Megaphone,
@@ -42,47 +39,41 @@ const AuditLogPage = async ({ searchParams }: PageProps<"/audit-log">): Promise<
   const actorParam = readParam(params.actor);
   const entityFilter = entityParam && entities.includes(entityParam) ? entityParam : null;
   const actorFilter = actors.find(({ id }) => id === actorParam)?.id ?? null;
-  const pageNumber = Math.max(0, Number.parseInt(readParam(params.page) ?? "0", 10) || 0);
-  const entries = await listAuditLogs(entityFilter, actorFilter, pageNumber);
-  const pageLink = (target: number): string =>
-    buildHref("/audit-log", {
-      entity: entityFilter ?? undefined,
-      actor: actorFilter ?? undefined,
-      page: target > 0 ? String(target) : undefined,
-    });
-  const hasNewer = pageNumber > 0;
-  const hasOlder = entries.length === AUDIT_PAGE_SIZE;
+  const query = readParam(params.q);
+  const pageSize = readPageSize(readParam(params.size), 50);
+  const search = {
+    entity: entityFilter,
+    actor: actorFilter,
+    actions: query ? auditActionsMatching(query) : null,
+    pageSize,
+  };
+  const requested = readPage(readParam(params.page));
+  const first = await listAuditLogs({ ...search, page: requested });
+  const page = Math.min(requested, pageRange(requested, pageSize, first.total).pageCount);
+  const { items: entries, total } = page === requested ? first : await listAuditLogs({ ...search, page });
 
   return (
     <main>
       <h1>Log audit</h1>
-      <form method="get" className="!flex-row !flex-wrap !items-end !gap-2">
-        <div className="!w-auto">
-          <label htmlFor="entity">Jenis data</label>
-          <select id="entity" name="entity" defaultValue={entityFilter ?? ""}>
-            <option value="">Semua jenis</option>
-            {entities.map((option) => (
-              <option key={option} value={option}>
-                {auditEntityLabel(option)}
-              </option>
-            ))}
-          </select>
+      <div className="flex flex-col gap-3">
+        <ListSearch label="Cari tindakan" placeholder="Cari tindakan, misalnya DP disetujui" />
+        <div className="flex flex-wrap items-end gap-3">
+          <ListFilterSelect
+            id="entity"
+            param="entity"
+            label="Jenis data"
+            allLabel="Semua jenis"
+            options={entities.map((option) => ({ value: option, label: auditEntityLabel(option) }))}
+          />
+          <ListFilterSelect
+            id="actor"
+            param="actor"
+            label="Pelaku"
+            allLabel="Semua pelaku"
+            options={actors.map(({ id, name }) => ({ value: id, label: name }))}
+          />
         </div>
-        <div className="!w-auto">
-          <label htmlFor="actor">Pelaku</label>
-          <select id="actor" name="actor" defaultValue={actorFilter ?? ""}>
-            <option value="">Semua pelaku</option>
-            {actors.map(({ id, name }) => (
-              <option key={id} value={id}>
-                {name}
-              </option>
-            ))}
-          </select>
-        </div>
-        <Button type="submit" variant="outline" className="min-h-[var(--control-height)] text-ui">
-          Terapkan
-        </Button>
-      </form>
+      </div>
       {entries.length === 0 ? (
         <EmptyState icon={ClockCounterClockwise} title="Tidak ada catatan" description="Tidak ada catatan untuk filter ini." />
       ) : (
@@ -141,26 +132,7 @@ const AuditLogPage = async ({ searchParams }: PageProps<"/audit-log">): Promise<
           </table>
         </TableCard>
       )}
-      {(hasNewer || hasOlder) && (
-        <nav aria-label="Halaman log" className="flex justify-end gap-2">
-          {hasNewer && (
-            <Button asChild variant="outline" size="sm" className="min-h-9 text-ui">
-              <Link href={pageLink(pageNumber - 1)} className="text-foreground no-underline hover:no-underline">
-                <CaretLeft aria-hidden="true" />
-                Lebih baru
-              </Link>
-            </Button>
-          )}
-          {hasOlder && (
-            <Button asChild variant="outline" size="sm" className="min-h-9 text-ui">
-              <Link href={pageLink(pageNumber + 1)} className="text-foreground no-underline hover:no-underline">
-                Lebih lama
-                <CaretRight aria-hidden="true" />
-              </Link>
-            </Button>
-          )}
-        </nav>
-      )}
+      {total > 0 && <ListPager total={total} page={page} pageSize={pageSize} />}
     </main>
   );
 };

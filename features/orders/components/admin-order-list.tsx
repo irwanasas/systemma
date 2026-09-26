@@ -3,28 +3,26 @@ import { Receipt } from "@phosphor-icons/react/ssr";
 import { DateTime } from "@/components/ui/date-time";
 import { EmptyState } from "@/components/ui/empty-state";
 import { FilterChips } from "@/components/ui/filter-chips";
-import { Pagination } from "@/components/ui/pagination";
-import { SearchField } from "@/components/ui/search-field";
+import { ListPager, ListSearch } from "@/components/ui/list-controls";
 import { TableCard } from "@/components/ui/table-card";
 import { OrderStatusBadge } from "@/features/orders/components/order-status-badge";
 import { ORDER_STATUSES, orderStatusLabels, type OrderStatus, type OrderSummary } from "@/features/orders/types";
-import { buildHref, type Page } from "@/lib/list-params";
+import { buildHref } from "@/lib/list-params";
 import { formatRupiah } from "@/lib/money";
 
 type AdminOrderListProps = {
-  result: Page<OrderSummary>;
+  result: { items: OrderSummary[]; total: number; page: number; pageSize: number };
   status: OrderStatus | null;
   query: string | undefined;
 };
 
 export const AdminOrderList = ({ result, status, query }: AdminOrderListProps): React.ReactNode => {
-  const hrefFor = (page: number): string =>
-    buildHref("/orders", { status: status ?? undefined, q: query, page: page > 1 ? String(page) : undefined });
+  const size = result.pageSize === 20 ? undefined : String(result.pageSize);
   const chips = [
-    { label: "Semua", href: buildHref("/orders", { q: query }), active: status === null },
+    { label: "Semua", href: buildHref("/orders", { q: query, size }), active: status === null },
     ...ORDER_STATUSES.map((option) => ({
       label: orderStatusLabels[option],
-      href: buildHref("/orders", { status: option, q: query }),
+      href: buildHref("/orders", { status: option, q: query, size }),
       active: status === option,
     })),
   ];
@@ -32,12 +30,7 @@ export const AdminOrderList = ({ result, status, query }: AdminOrderListProps): 
     <main>
       <h1>Pesanan</h1>
       <div className="flex flex-col gap-3">
-        <SearchField
-          label="Cari pesanan"
-          placeholder="Nomor, agen, atau seri"
-          defaultValue={query}
-          hidden={{ status: status ?? undefined }}
-        />
+        <ListSearch label="Cari pesanan" placeholder="Nomor, agen, atau seri" />
         <FilterChips label="Filter status" chips={chips} />
       </div>
       {result.total === 0 ? (
@@ -105,7 +98,7 @@ export const AdminOrderList = ({ result, status, query }: AdminOrderListProps): 
               </li>
             ))}
           </ul>
-          <Pagination page={result.page} pageCount={result.pageCount} total={result.total} hrefFor={hrefFor} />
+          <ListPager total={result.total} page={result.page} pageSize={result.pageSize} />
         </>
       )}
     </main>

@@ -3,6 +3,7 @@ import { CheckCircle, Package } from "@phosphor-icons/react/ssr";
 import { Button } from "@/components/ui/button";
 import { DateTime } from "@/components/ui/date-time";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ListPager, ListSearch } from "@/components/ui/list-controls";
 import { TableCard } from "@/components/ui/table-card";
 import { OrderStatusBadge } from "@/features/orders/components/order-status-badge";
 import { type OrderSummary } from "@/features/orders/types";
@@ -10,12 +11,13 @@ import { formatDateTime } from "@/lib/dates";
 import { formatRupiah } from "@/lib/money";
 
 type AgentOrderListProps = {
-  orders: OrderSummary[];
-  placedNumbers: string[];
+  result: { items: OrderSummary[]; total: number; page: number; pageSize: number };
+  placedOrders: OrderSummary[];
+  query: string | undefined;
 };
 
-export const AgentOrderList = ({ orders, placedNumbers }: AgentOrderListProps): React.ReactNode => {
-  const placedOrders = orders.filter(({ number }) => placedNumbers.includes(number));
+export const AgentOrderList = ({ result, placedOrders, query }: AgentOrderListProps): React.ReactNode => {
+  const orders = result.items;
   return (
     <main>
       <h1>Pesanan</h1>
@@ -39,7 +41,10 @@ export const AgentOrderList = ({ orders, placedNumbers }: AgentOrderListProps): 
           </ul>
         </section>
       )}
-      {orders.length === 0 ? (
+      {(result.total > 0 || query) && <ListSearch label="Cari pesanan" placeholder="Nomor pesanan atau seri" />}
+      {result.total === 0 && query ? (
+        <EmptyState icon={Package} title="Tidak ada pesanan" description="Tidak ada pesanan yang cocok dengan pencarian ini." />
+      ) : result.total === 0 ? (
         <EmptyState
           icon={Package}
           title="Belum ada pesanan"
@@ -111,6 +116,7 @@ export const AgentOrderList = ({ orders, placedNumbers }: AgentOrderListProps): 
               </li>
             ))}
           </ul>
+          <ListPager total={result.total} page={result.page} pageSize={result.pageSize} />
         </>
       )}
     </main>

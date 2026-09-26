@@ -13,23 +13,32 @@ export type AuditLogEntry = {
   createdAt: string;
 };
 
-export const AUDIT_PAGE_SIZE = 100;
-
 export const SYSTEM_ACTOR = "system";
 
-export const listAuditLogs = async (entity: string | null, actor: string | null, page: number): Promise<AuditLogEntry[]> => {
-  const from = page * AUDIT_PAGE_SIZE;
+export type AuditSearch = {
+  entity: string | null;
+  actor: string | null;
+  actions: string[] | null;
+  page: number;
+  pageSize: number;
+};
+
+export const listAuditLogs = async ({ entity, actor, actions, page, pageSize }: AuditSearch): Promise<{ items: AuditLogEntry[]; total: number }> => {
+  if (actions?.length === 0) return { items: [], total: 0 };
+  const from = (page - 1) * pageSize;
   let query = getAdminClient()
     .from("audit_logs")
-    .select("id, action, entity, entity_id, before, after, created_at, users(full_name)")
+    .select("id, action, entity, entity_id, before, after, created_at, users(full_name)", { count: "exact" })
     .order("created_at", { ascending: false })
-    .range(from, from + AUDIT_PAGE_SIZE - 1);
+    .order("id", { ascending: false })
+    .range(from, from + pageSize - 1);
   if (entity) query = query.eq("entity", entity);
   if (actor === SYSTEM_ACTOR) query = query.is("actor_id", null);
   else if (actor) query = query.eq("actor_id", actor);
-  const { data, error } = await query;
+  if (actions) query = query.in("action", actions);
+  const { data, error, count } = await query;
   if (error) throw error;
-  return data.map((row) => ({
+  const items = data.map((row) => ({
     id: row.id,
     actorName: row.users?.full_name ?? null,
     action: row.action,
@@ -39,6 +48,7 @@ export const listAuditLogs = async (entity: string | null, actor: string | null,
     after: row.after,
     createdAt: row.created_at,
   }));
+  return { items, total: count ?? 0 };
 };
 
 export const listAuditEntities = async (): Promise<string[]> => {

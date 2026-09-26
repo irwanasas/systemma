@@ -34,15 +34,24 @@ test("admin order search runs in the database and pages beyond the first 20 resu
 
   await login(page, "e2e-admin");
   await expectPath(page, "/dashboard");
-  await page.goto("/orders?q=e2e-pager");
+  await page.goto("/orders");
+  await page.getByRole("searchbox", { name: "Cari pesanan" }).fill("e2e-pager");
+  await expect(page).toHaveURL(/[?&]q=e2e-pager/);
   const table = page.locator("table");
-  await expect(page.getByText(`Halaman 1 dari 2 · ${ORDER_COUNT} data`)).toBeVisible();
+  await expect(page.getByText(`Menampilkan 1–20 dari ${ORDER_COUNT}`)).toBeVisible();
   await expect(table.getByRole("link", { name: /^AUR-/ })).toHaveCount(20);
   await expect(table.getByRole("link", { name: numbers[0], exact: true })).toBeVisible();
 
-  await page.getByRole("link", { name: "Berikutnya" }).click();
-  await expect(page.getByText(`Halaman 2 dari 2 · ${ORDER_COUNT} data`)).toBeVisible();
+  await page.getByRole("link", { name: "Halaman berikutnya" }).click();
+  await expect(page.getByText(`Menampilkan 21–${ORDER_COUNT} dari ${ORDER_COUNT}`)).toBeVisible();
   await expect(table.getByRole("link", { name: /^AUR-/ })).toHaveCount(ORDER_COUNT - 20);
+  await expect(table.getByRole("link", { name: numbers[ORDER_COUNT - 1], exact: true })).toBeVisible();
+
+  await page.getByLabel("Per halaman").selectOption("10");
+  await expect(page).toHaveURL(/[?&]size=10/);
+  await expect(page.getByText(`Menampilkan 1–10 dari ${ORDER_COUNT}`)).toBeVisible();
+  await page.getByRole("link", { name: "Halaman terakhir" }).click();
+  await expect(page.getByText(`Menampilkan 21–${ORDER_COUNT} dari ${ORDER_COUNT}`)).toBeVisible();
   await expect(table.getByRole("link", { name: numbers[ORDER_COUNT - 1], exact: true })).toBeVisible();
 
   const oldest = numbers[ORDER_COUNT - 1];

@@ -1,22 +1,25 @@
 import { CheckCircle, MinusCircle, UsersThree } from "@phosphor-icons/react/ssr";
 import { DateTime } from "@/components/ui/date-time";
 import { EmptyState } from "@/components/ui/empty-state";
-import { SearchField } from "@/components/ui/search-field";
+import { ListPager, ListSearch } from "@/components/ui/list-controls";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { TableCard } from "@/components/ui/table-card";
 import { AgentActions } from "@/features/auth/components/agent-actions";
 import { CreateAgentForm } from "@/features/auth/components/create-agent-form";
 import { listAgents } from "@/features/auth/server/queries";
 import { requireRole } from "@/lib/auth/require-role";
-import { matchesQuery, readParam } from "@/lib/list-params";
+import { matchesQuery, paginate, readPageSize, readParam } from "@/lib/list-params";
 
 const muted = <span className="text-muted-foreground">–</span>;
 
 const AgentsPage = async ({ searchParams }: PageProps<"/agents">): Promise<React.ReactNode> => {
   await requireRole("admin");
-  const query = readParam((await searchParams).q);
+  const params = await searchParams;
+  const query = readParam(params.q);
+  const pageSize = readPageSize(readParam(params.size), 20);
   const agents = await listAgents();
   const visible = agents.filter((agent) => matchesQuery(query, agent.fullName, agent.username, agent.code, agent.city, agent.phone));
+  const shown = paginate(visible, readParam(params.page), pageSize);
   return (
     <main>
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -27,7 +30,7 @@ const AgentsPage = async ({ searchParams }: PageProps<"/agents">): Promise<React
         <EmptyState icon={UsersThree} title="Belum ada agen" description="Tambah agen agar mereka bisa masuk dan memesan." />
       ) : (
         <>
-          <SearchField label="Cari agen" placeholder="Nama, username, kode, kota, atau HP" defaultValue={query} />
+          <ListSearch label="Cari agen" placeholder="Nama, username, kode, kota, atau HP" />
           {visible.length === 0 ? (
             <EmptyState icon={UsersThree} title="Tidak ada agen" description="Tidak ada agen yang cocok dengan pencarian ini." />
           ) : (
@@ -47,7 +50,7 @@ const AgentsPage = async ({ searchParams }: PageProps<"/agents">): Promise<React
                   </tr>
                 </thead>
                 <tbody>
-                  {visible.map(({ userId, code, fullName, username, city, phone, isActive, lastOrderAt }) => (
+                  {shown.items.map(({ userId, code, fullName, username, city, phone, isActive, lastOrderAt }) => (
                     <tr key={userId}>
                       <td>
                         <span className="flex flex-col py-1">
@@ -76,6 +79,7 @@ const AgentsPage = async ({ searchParams }: PageProps<"/agents">): Promise<React
               </table>
             </TableCard>
           )}
+          {visible.length > 0 && <ListPager total={shown.total} page={shown.page} pageSize={pageSize} />}
         </>
       )}
     </main>

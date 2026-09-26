@@ -42,3 +42,10 @@ const entityLabels: Record<string, string> = {
 export const auditActionLabel = (action: string): string => actionLabels[action] ?? action;
 
 export const auditEntityLabel = (entity: string): string => entityLabels[entity] ?? entity;
+
+export const auditActionsMatching = (query: string): string[] => {
+  const needle = query.toLocaleLowerCase("id-ID");
+  return Object.entries(actionLabels)
+    .filter(([code, label]) => code.includes(needle) || label.toLocaleLowerCase("id-ID").includes(needle))
+    .map(([code]) => code);
+};

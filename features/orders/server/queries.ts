@@ -52,7 +52,13 @@ export const listAgentOrders = async (agentId: string): Promise<OrderSummary[]> 
   return data.map(toOrderSummary);
 };
 
-export type OrderSearch = { status: OrderStatus | null; query: string | undefined; page: number; pageSize: number };
+export type OrderSearch = {
+  status: OrderStatus | null;
+  query: string | undefined;
+  page: number;
+  pageSize: number;
+  agentId?: string;
+};
 
 export type OrderSearchResult = { items: OrderSummary[]; total: number };
 
@@ -76,7 +82,7 @@ const findSearchMatches = async (term: string): Promise<{ agentIds: string[]; ba
   };
 };
 
-export const searchOrders = async ({ status, query, page, pageSize }: OrderSearch): Promise<OrderSearchResult> => {
+export const searchOrders = async ({ status, query, page, pageSize, agentId }: OrderSearch): Promise<OrderSearchResult> => {
   const term = toSearchTerm(query);
   let request = getAdminClient()
     .from("orders")
@@ -84,6 +90,7 @@ export const searchOrders = async ({ status, query, page, pageSize }: OrderSearc
     .order("created_at", { ascending: false })
     .order("id", { ascending: false })
     .range((page - 1) * pageSize, page * pageSize - 1);
+  if (agentId) request = request.eq("agent_id", agentId);
   if (status) request = request.eq("status", status);
   if (term) {
     const { agentIds, batchIds } = await findSearchMatches(term);

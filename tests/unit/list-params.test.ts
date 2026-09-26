@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildHref, matchesQuery, paginate, readParam, toSearchTerm } from "@/lib/list-params";
+import { buildHref, matchesQuery, pageRange, paginate, readPage, readPageSize, readParam, toSearchTerm } from "@/lib/list-params";
 
 describe("list params", () => {
   it("reads the first trimmed value", () => {
@@ -31,5 +31,19 @@ describe("list params", () => {
     expect(toSearchTerm(" AUR-2026,(x)*%_ ")).toBe("AUR-2026 x");
     expect(toSearchTerm("Ny. Siti\\")).toBe("Ny. Siti");
     expect(toSearchTerm(undefined)).toBe("");
+  });
+
+  it("accepts only the offered page sizes and positive pages", () => {
+    expect(readPageSize("50", 20)).toBe(50);
+    expect(readPageSize("33", 20)).toBe(20);
+    expect(readPageSize(undefined, 10)).toBe(10);
+    expect(readPage("0")).toBe(1);
+    expect(readPage("abc")).toBe(1);
+    expect(readPage("3")).toBe(3);
+  });
+
+  it("computes the shown range", () => {
+    expect(pageRange(2, 20, 25)).toEqual({ from: 21, to: 25, pageCount: 2 });
+    expect(pageRange(1, 10, 0)).toEqual({ from: 0, to: 0, pageCount: 1 });
   });
 });
