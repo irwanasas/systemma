@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "@fontsource-variable/inter";
 import "./globals.css";
+import { ThemeProvider } from "@/components/theme/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
@@ -9,10 +10,12 @@ export const metadata: Metadata = {
 };
 
 const RootLayout = ({ children }: LayoutProps<"/">): React.ReactNode => (
-  <html lang="id">
+  <html lang="id" suppressHydrationWarning>
     <body>
-      {children}
-      <Toaster />
+      <ThemeProvider>
+        {children}
+        <Toaster />
+      </ThemeProvider>
     </body>
   </html>
 );

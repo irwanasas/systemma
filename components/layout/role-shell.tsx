@@ -3,6 +3,7 @@ import { AccountMenu } from "@/components/layout/account-menu";
 import { AdminSidebar } from "@/components/layout/admin-sidebar";
 import { AgentBottomNav, AgentTopNav } from "@/components/layout/agent-nav";
 import { NotificationBell } from "@/components/layout/notification-bell";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import type { CurrentUser } from "@/features/auth/types";
 import { getCartItemCount } from "@/features/cart/server/queries";
@@ -21,6 +22,7 @@ const AdminShell = async ({ user, children }: { user: CurrentUser; children: Rea
               Aurora
             </Link>
             <div className="ml-auto flex items-center gap-1">
+              <ThemeToggle className="size-10" />
               <NotificationBell unreadCount={unreadCount} />
               <AccountMenu fullName={user.fullName} roleLabel="Admin" />
             </div>
@@ -42,7 +44,8 @@ const AgentShell = async ({ user, children }: { user: CurrentUser; children: Rea
             Aurora
           </Link>
           <AgentTopNav cartCount={cartCount} />
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-1">
+            <ThemeToggle />
             <AccountMenu fullName={user.fullName} roleLabel="Agen" />
           </div>
         </div>

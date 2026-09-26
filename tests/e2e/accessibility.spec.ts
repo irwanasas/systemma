@@ -12,35 +12,46 @@ const expectNoViolations = async (page: Page, path: string): Promise<void> => {
   ).toEqual([]);
 };
 
-test("login page has no WCAG 2.1 AA violations", async ({ page }) => {
-  await expectNoViolations(page, "/login");
-});
+for (const colorScheme of ["light", "dark"] as const) {
+  test.describe(`${colorScheme} theme`, () => {
+    test.use({ colorScheme });
 
-test("agent pages have no WCAG 2.1 AA violations", async ({ page }) => {
-  await login(page, "e2e-a11y");
-  await expectPath(page, "/catalog");
-  for (const path of ["/catalog", "/catalog/e2e-cart", "/cart", "/orders", "/announcements"]) {
-    await expectNoViolations(page, path);
-  }
-});
+    test(`login page has no WCAG 2.1 AA violations in ${colorScheme} theme`, async ({ page }) => {
+      await expectNoViolations(page, "/login");
+    });
 
-test("order modal has no WCAG 2.1 AA violations", async ({ page }) => {
-  await login(page, "e2e-a11y");
-  await expectPath(page, "/catalog");
-  await page.getByRole("link", { name: "E2E Keranjang" }).click();
-  await expect(page.getByRole("dialog", { name: "E2E Keranjang" })).toBeVisible();
-  await page.getByText("Tambah ukuran custom", { exact: true }).click();
-  const { violations } = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
-  expect(violations.map(({ id, nodes }) => `${id}: ${nodes.map(({ target }) => target.join(" ")).join(", ")}`)).toEqual([]);
-});
+    test(`agent pages have no WCAG 2.1 AA violations in ${colorScheme} theme`, async ({ page }) => {
+      await login(page, "e2e-a11y");
+      await expectPath(page, "/catalog");
+      for (const path of ["/catalog", "/catalog/e2e-cart", "/cart", "/orders", "/announcements"]) {
+        await expectNoViolations(page, path);
+      }
+    });
 
-test("admin pages have no WCAG 2.1 AA violations", async ({ page }) => {
-  await login(page, "e2e-admin");
-  await expectPath(page, "/dashboard");
-  for (const path of ["/dashboard", "/orders", "/payments", "/products", "/products/new", "/po-batches", "/agents", "/settings", "/audit-log", "/recap"]) {
-    await expectNoViolations(page, path);
-  }
-});
+    test(`order modal has no WCAG 2.1 AA violations in ${colorScheme} theme`, async ({ page }) => {
+      await login(page, "e2e-a11y");
+      await expectPath(page, "/catalog");
+      await page.getByRole("link", { name: "E2E Keranjang" }).click();
+      await expect(page.getByRole("dialog", { name: "E2E Keranjang" })).toBeVisible();
+      await page.getByText("Tambah ukuran custom", { exact: true }).click();
+      const { violations } = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
+      expect(violations.map(({ id, nodes }) => `${id}: ${nodes.map(({ target }) => target.join(" ")).join(", ")}`)).toEqual([]);
+    });
+
+    test(`admin pages have no WCAG 2.1 AA violations in ${colorScheme} theme`, async ({ page }) => {
+      await login(page, "e2e-admin");
+      await expectPath(page, "/dashboard");
+      for (const path of ["/dashboard", "/orders", "/payments", "/products", "/products/new", "/po-batches", "/agents", "/settings", "/audit-log", "/recap"]) {
+        await expectNoViolations(page, path);
+      }
+    });
+
+    test(`the page uses the ${colorScheme} theme`, async ({ page }) => {
+      await page.goto("/login");
+      await expect(page.locator("html")).toHaveClass(new RegExp(colorScheme));
+    });
+  });
+}
 
 test("order grid supports arrow-key navigation", async ({ page }) => {
   await login(page, "e2e-a11y");
