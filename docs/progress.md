@@ -101,3 +101,22 @@ Tests at the end: typecheck and lint clean; 33 unit, 95 pgTAP and 28 e2e (axe in
 Open:
 - Product photos (feature decision).
 - The admin compact density keeps 36px controls on phones.
+
+## Brand pass — done (ADR 0011)
+
+Steps, each committed separately:
+- Two bug fixes: `dark:` follows only the theme class; primitive animations run.
+- Terracotta tokens and dark mode with a toggle.
+- BrandMark, brand-band sidebar and Fraunces headings.
+- Login page.
+- Public landing at `/`.
+- Dashboard with KPI tiles, "Perlu perhatian", quick actions and charts.
+- Rekap charts.
+- List controls.
+- Skeletons and route error boundaries.
+- Motion.
+
+Screenshots are in `docs/ui/brand-after/` (26 screens at 375 and 1440, light and dark).
+
+Needs client input: the real logo and the landing contact details.
+
