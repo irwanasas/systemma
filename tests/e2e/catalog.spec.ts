@@ -58,3 +58,12 @@ test("archived or unknown products are not shown to agents", async ({ page }) =>
   const response = await page.goto("/catalog/tidak-ada");
   expect(response?.status()).toBe(404);
 });
+
+test("detail pages keep real 404s next to the list skeletons", async ({ page }) => {
+  await login(page, "e2e-admin");
+  await expectPath(page, "/dashboard");
+  for (const path of ["/products/00000000-0000-0000-0000-000000000000", "/orders/00000000-0000-0000-0000-000000000000"]) {
+    const response = await page.goto(path);
+    expect(response?.status(), path).toBe(404);
+  }
+});
