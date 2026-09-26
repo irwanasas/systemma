@@ -58,6 +58,14 @@
   --color-danger-soft: var(--danger-soft);
   --color-info: var(--info);
   --color-info-soft: var(--info-soft);
+  --color-sidebar: var(--surface);
+  --color-sidebar-foreground: var(--text);
+  --color-sidebar-primary: var(--primary);
+  --color-sidebar-primary-foreground: #ffffff;
+  --color-sidebar-accent: var(--primary-soft);
+  --color-sidebar-accent-foreground: var(--primary-strong);
+  --color-sidebar-border: var(--border);
+  --color-sidebar-ring: var(--text);
 
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
 
@@ -65,6 +73,8 @@
   --text-xs--line-height: 1.4;
   --text-sm: 0.833rem;
   --text-sm--line-height: 1.4;
+  --text-ui: 0.875rem;
+  --text-ui--line-height: 1.45;
   --text-base: 1rem;
   --text-base--line-height: 1.45;
   --text-lg: 1.2rem;
@@ -302,13 +312,20 @@
     margin: 0;
   }
 
-  ul,
-  ol {
+  ul:not([class]),
+  ol:not([class]) {
     padding-left: 1.25rem;
   }
 
-  ul {
+  ul:not([class]) {
     list-style: circle;
+  }
+
+  ul[class],
+  ol[class] {
+    list-style: none;
+    margin: 0;
+    padding: 0;
   }
 
   pre {

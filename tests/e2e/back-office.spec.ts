@@ -50,12 +50,12 @@ test("admin settings, announcements, notifications and audit log", async ({ brow
   await expect(agent.getByText("BCA 1234567890 a.n. Aurora Hijab")).toBeVisible();
 
   await admin.goto("/dashboard");
-  await expect(admin.getByRole("link", { name: /notifikasi baru/ })).toBeVisible();
+  await expect(admin.getByRole("link", { name: /^Notifikasi, \d+ belum dibaca$/ })).toBeVisible();
   const notification = admin.getByRole("listitem").filter({ hasText: orderNumber });
   await expect(notification).toContainText("Pesanan baru");
   await expect(notification).toContainText("e2e-notify");
   await admin.getByRole("button", { name: "Tandai semua sudah dibaca" }).click();
-  await expect(admin.getByRole("link", { name: /notifikasi baru/ })).toHaveCount(0);
+  await expect(admin.getByRole("link", { name: /^Notifikasi, \d+ belum dibaca$/ })).toHaveCount(0);
 
   await admin.goto("/audit-log?entity=settings");
   await expect(admin.getByRole("cell", { name: "update_settings" }).first()).toBeVisible();

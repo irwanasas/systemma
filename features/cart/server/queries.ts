@@ -96,3 +96,11 @@ export const getBatchCartQuantities = async (agentId: string, poBatchId: string)
   if (error) throw error;
   return Object.fromEntries(data.map(({ variant_id, qty }) => [variant_id, qty]));
 };
+
+export const getCartItemCount = async (agentId: string): Promise<number> => {
+  const cartId = await getCartId(agentId);
+  if (!cartId) return 0;
+  const { data, error } = await getAdminClient().from("cart_items").select("qty").eq("cart_id", cartId);
+  if (error) throw error;
+  return data.reduce((sum, { qty }) => sum + qty, 0);
+};

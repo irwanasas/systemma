@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { E2E_PASSWORD, expectPath, login } from "./fixtures";
+import { E2E_PASSWORD, expectPath, login, logout } from "./fixtures";
 
 test("admin logs in and lands on the dashboard", async ({ page }) => {
   await login(page, "e2e-admin");
@@ -76,7 +76,7 @@ test("new account must change the password before continuing", async ({ page }) 
   await page.getByRole("button", { name: "Simpan password" }).click();
   await expectPath(page, "/catalog");
 
-  await page.getByRole("button", { name: "Keluar" }).click();
+  await logout(page);
   await expectPath(page, "/login");
   await login(page, "e2e-fresh", "Password-baru-456");
   await expectPath(page, "/catalog");
@@ -119,7 +119,7 @@ test("five failed attempts lock the username for 15 minutes", async ({ page }) =
 test("logout ends the session", async ({ page }) => {
   await login(page, "e2e-logout");
   await expectPath(page, "/catalog");
-  await page.getByRole("button", { name: "Keluar" }).click();
+  await logout(page);
   await expectPath(page, "/login");
   await page.goto("/catalog");
   await expectPath(page, "/login");

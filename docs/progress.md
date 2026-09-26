@@ -77,3 +77,7 @@
 - Indonesian error and not-found pages; daily auth cleanup job; client bundles scanned for secrets (none).
 - Design audit follow-ups (notifications, timeline marker).
 - `docs/operations.md`: environment, cron jobs, first production admin, backups and restore drill, rate limits, headers, incident checklist.
+
+## UI pass (ui-ux-pro-max) — in progress
+
+Approved plan (owner said "go" to everything proposed, 2026-09-26): shell/navigation → tokens & base components → catalog → order modal (intercepting route) → cart/checkout/order detail → admin orders & review → products (tabs) & batch PO → agents → pengumuman/pengaturan (vertical tabs) → rekap (preset chips + native dates) / log audit → 404/empty/error. Add `text-ui` 0.875rem token for admin; `sonner` re-added; shadcn sidebar/sheet/dropdown-menu/tooltip/tabs/table. Agent "Info" tab = Pengumuman + account section. Catalog cards use color-swatch fallback (no photos). Before/after screenshots: `docs/ui/before`, `docs/ui/after` (demo seed `npm run db:demo`).

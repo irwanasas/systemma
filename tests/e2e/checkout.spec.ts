@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { expectPath, login } from "./fixtures";
+import { expectPath, login, logout } from "./fixtures";
 
 test("agent fills the grid, adds a custom size, and checks out two batches as two orders", async ({ page }) => {
   await login(page, "e2e-buyer");
@@ -73,7 +73,7 @@ test("agent cancels an order before paying DP", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Batalkan pesanan" })).toHaveCount(0);
 
   const orderUrl = page.url();
-  await page.getByRole("button", { name: "Keluar" }).click();
+  await logout(page);
   await expectPath(page, "/login");
   await login(page, "e2e-buyer");
   await expectPath(page, "/catalog");
