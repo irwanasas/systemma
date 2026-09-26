@@ -1,6 +1,7 @@
 import { ArrowDownLeft, CheckCircle, Clock, XCircle } from "@phosphor-icons/react/ssr";
 import { paymentPurposeLabels, paymentStatusLabels, type Payment, type PaymentStatus } from "@/features/payments/types";
-import { formatDateTime } from "@/lib/dates";
+import { DateTime } from "@/components/ui/date-time";
+import { SectionCard } from "@/components/ui/section-card";
 import { formatRupiah } from "@/lib/money";
 
 const statusIcon: Record<PaymentStatus, typeof CheckCircle> = {
@@ -17,13 +18,15 @@ type PaymentHistoryProps = {
 export const PaymentHistory = ({ payments, proofUrls = {} }: PaymentHistoryProps): React.ReactNode => {
   if (!payments.length) return null;
   return (
-    <section aria-labelledby="payments-heading" className="rounded-lg border border-border bg-surface p-4">
-      <h2 id="payments-heading">Riwayat pembayaran</h2>
-      <ul className="flex list-none flex-col gap-3 p-0">
+    <SectionCard id="payments-heading" title="Riwayat pembayaran">
+      <ul className="flex flex-col gap-3">
         {payments.map((payment) => {
           const StatusIcon = statusIcon[payment.status];
           return (
-            <li key={payment.id} className="flex flex-col gap-1 border-b border-border pb-3 last:border-0 last:pb-0">
+            <li
+              key={payment.id}
+              className="flex flex-col gap-1 border-b border-border pb-3 text-ui last:border-0 last:pb-0"
+            >
               <span className="flex flex-wrap items-center gap-2">
                 <ArrowDownLeft aria-hidden="true" weight="bold" />
                 <span className="font-semibold">{paymentPurposeLabels[payment.purpose]}</span>
@@ -34,7 +37,7 @@ export const PaymentHistory = ({ payments, proofUrls = {} }: PaymentHistoryProps
                 </span>
               </span>
               <span className="text-sm text-muted-foreground">
-                {formatDateTime(payment.createdAt)}
+                <DateTime value={payment.createdAt} />
                 {proofUrls[payment.id] && (
                   <>
                     {" "}
@@ -47,6 +50,6 @@ export const PaymentHistory = ({ payments, proofUrls = {} }: PaymentHistoryProps
           );
         })}
       </ul>
-    </section>
+    </SectionCard>
   );
 };

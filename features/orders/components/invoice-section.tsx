@@ -1,4 +1,5 @@
 import { PrintButton } from "@/components/ui/print-button";
+import { SectionCard } from "@/components/ui/section-card";
 import type { OrderDetail } from "@/features/orders/types";
 import type { Invoice } from "@/features/payments/types";
 import type { InvoiceHeader } from "@/features/settings/server/queries";
@@ -12,15 +13,14 @@ type InvoiceSectionProps = {
 };
 
 export const InvoiceSection = ({ invoice, order, header }: InvoiceSectionProps): React.ReactNode => (
-  <section aria-labelledby="invoice-heading" className="rounded-lg border border-border bg-surface p-4">
-    <h2 id="invoice-heading">Invoice</h2>
+  <SectionCard id="invoice-heading" title="Invoice" action={invoice && <PrintButton label="Cetak invoice" />}>
     {invoice ? (
       <>
-        <p>
+        <p className="text-ui font-medium">
           {header.name}
           {header.address && ` · ${header.address}`}
         </p>
-        <dl>
+        <dl className="text-ui">
           <dt>Nomor invoice</dt>
           <dd>{invoice.number}</dd>
           <dt>Diterbitkan</dt>
@@ -39,10 +39,9 @@ export const InvoiceSection = ({ invoice, order, header }: InvoiceSectionProps):
             {invoice.settledAt ? `lunas ${formatDateTime(invoice.settledAt)}` : "belum lunas"}
           </dd>
         </dl>
-        <PrintButton label="Cetak invoice" />
       </>
     ) : (
-      <p>Invoice terbit setelah DP disetujui admin.</p>
+      <p className="text-ui text-muted-foreground">Invoice terbit setelah DP disetujui admin.</p>
     )}
-  </section>
+  </SectionCard>
 );

@@ -1,5 +1,6 @@
-import Link from "next/link";
+import { OrderHeader } from "@/features/orders/components/order-header";
 import { OrderStatusBadge } from "@/features/orders/components/order-status-badge";
+import { SectionCard } from "@/components/ui/section-card";
 import { ActionForm } from "@/components/ui/action-form";
 import { CopyButton } from "@/components/ui/copy-button";
 import { DpCountdown } from "@/features/orders/components/dp-countdown";
@@ -26,77 +27,95 @@ export const AgentOrderDetail = ({ order, payments, invoice, settings }: AgentOr
   const lastRejected = payments.find(({ purpose, status }) => purpose === "DP" && status === "REJECTED");
   return (
     <main>
-      <p>
-        <Link href="/orders">Kembali ke daftar pesanan</Link>
-      </p>
-      <h1>Pesanan {order.number}</h1>
-      <dl>
-        <dt>Status</dt>
-        <dd><OrderStatusBadge status={order.status} /></dd>
-        <dt>Seri</dt>
-        <dd>
-          {order.productName} · PO {order.batchLabel}
-        </dd>
-        <dt>Dibuat</dt>
-        <dd>{formatDateTime(order.createdAt)}</dd>
-        {order.etaAt && (
-          <>
-            <dt>Estimasi selesai</dt>
-            <dd>{formatDateTime(order.etaAt)}</dd>
-          </>
-        )}
-      </dl>
+      <OrderHeader
+        number={order.number}
+        meta={[
+          {
+            label: "Status",
+            value: <OrderStatusBadge status={order.status} />,
+          },
+          {
+            label: "Seri",
+            value: `${order.productName} · PO ${order.batchLabel}`,
+          },
+          { label: "Dibuat", value: formatDateTime(order.createdAt) },
+          ...(order.etaAt
+            ? [
+                {
+                  label: "Estimasi selesai",
+                  value: formatDateTime(order.etaAt),
+                },
+              ]
+            : []),
+        ]}
+      />
 
-      {order.status === "AWAITING_DP" && (
-        <section aria-labelledby="dp-heading" className="rounded-lg border-2 border-primary bg-surface p-4">
-          <h2 id="dp-heading">Bayar DP</h2>
-          <DpCountdown dueAt={order.dpDueAt} />
-          <p>
-            Transfer {formatRupiah(order.dpAmount)} paling lambat <strong>{formatDateTime(order.dpDueAt)}</strong>, lalu
-            unggah buktinya. Tanpa bukti, pesanan otomatis kedaluwarsa.
-          </p>
-          {lastRejected && <p role="alert">Bukti sebelumnya ditolak: {lastRejected.rejectReason}. Silakan unggah bukti yang benar.</p>}
-          {settings.bank_accounts.length > 0 ? (
-            <ul className="flex list-none flex-col gap-2 p-0">
-              {settings.bank_accounts.map(({ bank, number, holder }) => (
-                <li key={`${bank}-${number}`} className="flex flex-wrap items-center gap-3">
-                  <span>
-                    {bank} <span className="font-semibold tabular-nums">{number}</span> a.n. {holder}
-                  </span>
-                  <CopyButton value={number.replace(/\D/g, "")} label={`Salin nomor rekening ${bank}`} />
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>Rekening tujuan belum diatur. Hubungi admin Aurora.</p>
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+        <div className="flex flex-col gap-6">
+          {order.status === "AWAITING_DP" && (
+            <SectionCard id="dp-heading" title="Bayar DP" emphasis>
+              <DpCountdown dueAt={order.dpDueAt} />
+              <p>
+                Transfer {formatRupiah(order.dpAmount)} paling lambat <strong>{formatDateTime(order.dpDueAt)}</strong>,
+                lalu unggah buktinya. Tanpa bukti, pesanan otomatis kedaluwarsa.
+              </p>
+              {lastRejected && (
+                <p role="alert">
+                  Bukti sebelumnya ditolak: {lastRejected.rejectReason}. Silakan unggah bukti yang benar.
+                </p>
+              )}
+              {settings.bank_accounts.length > 0 ? (
+                <ul className="flex flex-col divide-y divide-border rounded-lg border border-border">
+                  {settings.bank_accounts.map(({ bank, number, holder }) => (
+                    <li
+                      key={`${bank}-${number}`}
+                      className="flex flex-wrap items-center justify-between gap-3 px-3 py-2 text-ui"
+                    >
+                      <span>
+                        {bank} <span className="font-semibold tabular-nums">{number}</span> a.n. {holder}
+                      </span>
+                      <CopyButton value={number.replace(/\D/g, "")} label={`Salin nomor rekening ${bank}`} />
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>Rekening tujuan belum diatur. Hubungi admin Aurora.</p>
+              )}
+              <DpProofForm orderId={order.id} dpAmount={order.dpAmount} />
+            </SectionCard>
           )}
-          <DpProofForm orderId={order.id} dpAmount={order.dpAmount} />
-        </section>
-      )}
 
-      {order.status === "DP_UNDER_REVIEW" && (
-        <p role="status">Bukti transfer sudah dikirim dan sedang dicek admin. Pesanan aman dari batas waktu sampai selesai dicek.</p>
-      )}
+          {order.status === "DP_UNDER_REVIEW" && (
+            <p role="status">
+              Bukti transfer sudah dikirim dan sedang dicek admin. Pesanan aman dari batas waktu sampai selesai dicek.
+            </p>
+          )}
 
-      <OrderStatusTimeline status={order.status} />
-      <OrderItemsTable order={order} />
-      <PaymentHistory payments={payments} />
-      <InvoiceSection invoice={invoice} order={order} header={settings.invoice_header} />
+          <OrderItemsTable order={order} />
+          <PaymentHistory payments={payments} />
+          <InvoiceSection invoice={invoice} order={order} header={settings.invoice_header} />
 
-      {order.status === "AWAITING_DP" && (
-        <section aria-labelledby="cancel-heading" className="rounded-lg border border-border bg-surface p-4">
-          <h2 id="cancel-heading">Batalkan pesanan</h2>
-          <p>Pesanan hanya bisa dibatalkan sebelum bukti DP dikirim.</p>
-          <ActionForm
-            action={cancelOrder}
-            submitLabel="Batalkan pesanan" tone="danger"
-            pendingLabel="Membatalkan…"
-            confirmMessage={`Batalkan pesanan ${order.number}?`}
-          >
-            <input type="hidden" name="orderId" value={order.id} />
-          </ActionForm>
-        </section>
-      )}
+          {order.status === "AWAITING_DP" && (
+            <SectionCard id="cancel-heading" title="Batalkan pesanan">
+              <p className="text-ui text-muted-foreground">Pesanan hanya bisa dibatalkan sebelum bukti DP dikirim.</p>
+              <ActionForm
+                action={cancelOrder}
+                submitLabel="Batalkan pesanan"
+                tone="ghost"
+                buttonClassName="border border-danger/40 text-danger hover:bg-danger-soft hover:text-danger"
+                pendingLabel="Membatalkan…"
+                confirmTitle="Batalkan pesanan?"
+                confirmMessage={`Pesanan ${order.number} akan dibatalkan dan tidak bisa dikembalikan.`}
+              >
+                <input type="hidden" name="orderId" value={order.id} />
+              </ActionForm>
+            </SectionCard>
+          )}
+        </div>
+        <aside className="lg:sticky lg:top-24">
+          <OrderStatusTimeline status={order.status} />
+        </aside>
+      </div>
     </main>
   );
 };

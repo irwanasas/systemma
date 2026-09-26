@@ -39,7 +39,7 @@ export const CheckoutDialog = ({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="min-h-11 px-6 text-base font-semibold">Checkout</Button>
+        <Button className="min-h-11 w-full px-6 text-base font-semibold">Checkout</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

@@ -1,16 +1,81 @@
 import { randomUUID } from "node:crypto";
 import Link from "next/link";
-import { PencilSimple, WarningCircle } from "@phosphor-icons/react/ssr";
-import { Button } from "@/components/ui/button";
+import { PencilSimple, ShoppingBag, Trash, WarningCircle } from "@phosphor-icons/react/ssr";
 import { ActionForm } from "@/components/ui/action-form";
+import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
+import { SectionCard } from "@/components/ui/section-card";
+import { SummaryList } from "@/components/ui/summary-list";
 import { CheckoutDialog } from "@/features/cart/components/checkout-dialog";
 import { clearCart, removeCartItem, updateCartLineQty } from "@/features/cart/server/actions";
 import { getCart } from "@/features/cart/server/queries";
+import type { CartLine } from "@/features/cart/types";
 import { describeSize } from "@/features/orders/format";
 import { getSettings } from "@/features/settings/server/queries";
 import { requireRole } from "@/lib/auth/require-role";
 import { formatDateTime, hoursFromNow } from "@/lib/dates";
 import { formatRupiah } from "@/lib/money";
+
+const CartLineRow = ({ line }: { line: CartLine }): React.ReactNode => {
+  const sizeLabel = describeSize(line.sizeCode, line.customChestCm, line.customLengthCm);
+  const isCustom = line.variantId === null;
+  return (
+    <li className="flex items-start justify-between gap-3 py-3 first:pt-0 last:pb-0">
+      <div className="flex min-w-0 flex-col gap-1">
+        <p className="font-medium">
+          {line.colorName} · {isCustom ? "Custom" : sizeLabel}
+        </p>
+        {isCustom && <p className="text-sm text-muted-foreground">{sizeLabel.replace(/^Custom \((.*)\)$/, "$1")}</p>}
+        <p className="text-sm text-muted-foreground tabular-nums">
+          {line.qty} × {line.unitPrice === null ? "–" : formatRupiah(line.unitPrice)}
+        </p>
+        {!line.isOrderable && (
+          <p className="flex items-center gap-1 text-sm font-semibold text-danger">
+            <WarningCircle aria-hidden="true" weight="bold" />
+            Tidak tersedia, hapus untuk melanjutkan
+          </p>
+        )}
+        {isCustom && line.isOrderable && (
+          <ActionForm
+            action={updateCartLineQty}
+            submitLabel="Simpan"
+            pendingLabel="Menyimpan…"
+            tone="secondary"
+            className="!flex-row !flex-wrap !items-center !gap-2 pt-1"
+            buttonClassName="min-h-9 px-3"
+          >
+            <input type="hidden" name="cartItemId" value={line.id} />
+            <input
+              name="qty"
+              type="number"
+              min={0}
+              defaultValue={line.qty}
+              aria-label={`Jumlah ${line.colorName} ${sizeLabel}`}
+              className="!min-h-9 !w-20 tabular-nums"
+            />
+          </ActionForm>
+        )}
+      </div>
+      <div className="flex shrink-0 items-center gap-1">
+        <p className="font-semibold tabular-nums">{line.lineTotal === null ? "–" : formatRupiah(line.lineTotal)}</p>
+        <ActionForm
+          action={removeCartItem}
+          submitLabel={`Hapus ${line.colorName} ${sizeLabel}`}
+          confirmTitle="Hapus dari keranjang?"
+          confirmMessage={`${line.colorName} ${sizeLabel}, ${line.qty} pcs akan dihapus dari keranjang.`}
+          confirmLabel="Hapus"
+          pendingLabel="Menghapus…"
+          tone="ghost"
+          hideLabel
+          icon={<Trash aria-hidden="true" className="size-5" />}
+          buttonClassName="size-11 text-muted-foreground hover:text-danger"
+        >
+          <input type="hidden" name="cartItemId" value={line.id} />
+        </ActionForm>
+      </div>
+    </li>
+  );
+};
 
 const CartPage = async (): Promise<React.ReactNode> => {
   const user = await requireRole("agent");
@@ -20,10 +85,18 @@ const CartPage = async (): Promise<React.ReactNode> => {
     return (
       <main>
         <h1>Keranjang</h1>
-        <p>Keranjang masih kosong.</p>
-        <p>
-          <Link href="/catalog">Buka katalog</Link>
-        </p>
+        <EmptyState
+          icon={ShoppingBag}
+          title="Belum ada barang"
+          description="Keranjang masih kosong. Pilih seri di katalog untuk mulai memesan."
+          action={
+            <Button asChild className="min-h-11 text-ui">
+              <Link href="/catalog" className="text-primary-foreground no-underline">
+                Buka katalog
+              </Link>
+            </Button>
+          }
+        />
       </main>
     );
   }
@@ -33,114 +106,64 @@ const CartPage = async (): Promise<React.ReactNode> => {
   return (
     <main>
       <h1>Keranjang</h1>
-      {cart.groups.map((group) => (
-        <section
-          key={group.poBatchId}
-          aria-labelledby={`batch-${group.poBatchId}`}
-          className="rounded-lg border border-border bg-surface p-4"
-        >
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 id={`batch-${group.poBatchId}`}>
-              {group.productName} · PO {group.batchLabel}
-            </h2>
-            {group.editSlug && (
-              <Button asChild variant="outline" size="sm" className="text-ui">
-                <Link href={`/catalog/${group.editSlug}`} aria-label={`Ubah ${group.productName}`} className="text-foreground no-underline">
-                  <PencilSimple aria-hidden="true" />
-                  Ubah
-                </Link>
-              </Button>
-            )}
-          </div>
-          <div className="overflow-x-auto">
-            <table>
-              <thead>
-                <tr>
-                  <th scope="col">Warna</th>
-                  <th scope="col">Ukuran</th>
-                  <th scope="col" className="text-right">
-                    Harga per pcs
-                  </th>
-                  <th scope="col">Jumlah</th>
-                  <th scope="col" className="text-right">
-                    Total
-                  </th>
-                  <th scope="col">
-                    <span className="sr-only">Tindakan</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {group.lines.map((line) => {
-                  const sizeLabel = describeSize(line.sizeCode, line.customChestCm, line.customLengthCm);
-                  return (
-                    <tr key={line.id}>
-                      <td>{line.colorName}</td>
-                      <td>
-                        {sizeLabel}
-                        {!line.isOrderable && (
-                          <span className="mt-1 flex items-center gap-1 text-sm font-semibold text-danger">
-                            <WarningCircle aria-hidden="true" weight="bold" />
-                            Tidak tersedia, hapus untuk melanjutkan
-                          </span>
-                        )}
-                      </td>
-                      <td className="text-right">{line.unitPrice === null ? "–" : formatRupiah(line.unitPrice)}</td>
-                      <td>
-                        <ActionForm action={updateCartLineQty} submitLabel="Ubah" pendingLabel="Menyimpan…" tone="secondary" className="!flex-row !items-center">
-                          <input type="hidden" name="cartItemId" value={line.id} />
-                          <input
-                            name="qty"
-                            type="number"
-                            min={0}
-                            defaultValue={line.qty}
-                            aria-label={`Jumlah ${line.colorName} ${sizeLabel}`}
-                            className="!w-20 tabular-nums"
-                          />
-                        </ActionForm>
-                      </td>
-                      <td className="text-right">{line.lineTotal === null ? "–" : formatRupiah(line.lineTotal)}</td>
-                      <td>
-                        <ActionForm
-                          action={removeCartItem}
-                          submitLabel={`Hapus ${line.colorName} ${sizeLabel}`}
-                          pendingLabel="Menghapus…"
-                          tone="secondary"
-                        >
-                          <input type="hidden" name="cartItemId" value={line.id} />
-                        </ActionForm>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-          <p className="tabular-nums">
-            {group.totalPcs} pcs · Subtotal {formatRupiah(group.subtotal)} · DP {settings.dp_percent}%{" "}
-            {formatRupiah(group.dpAmount)}
-          </p>
-        </section>
-      ))}
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <div className="flex flex-col gap-4">
+          {cart.groups.map((group) => (
+            <SectionCard
+              key={group.poBatchId}
+              id={`batch-${group.poBatchId}`}
+              title={`${group.productName} · PO ${group.batchLabel}`}
+              action={
+                group.editSlug && (
+                  <Button asChild variant="outline" size="sm" className="min-h-9 text-ui">
+                    <Link
+                      href={`/catalog/${group.editSlug}`}
+                      aria-label={`Ubah ${group.productName}`}
+                      className="text-foreground no-underline"
+                    >
+                      <PencilSimple aria-hidden="true" />
+                      Ubah
+                    </Link>
+                  </Button>
+                )
+              }
+            >
+              <ul className="divide-y divide-border">
+                {group.lines.map((line) => (
+                  <CartLineRow key={line.id} line={line} />
+                ))}
+              </ul>
+              <p className="flex max-w-none flex-wrap justify-between gap-x-4 gap-y-1 border-t border-border pt-3 text-ui text-muted-foreground tabular-nums">
+                <span>{group.totalPcs} pcs</span>
+                <span>
+                  Subtotal <span className="font-semibold text-foreground">{formatRupiah(group.subtotal)}</span> · DP{" "}
+                  {settings.dp_percent}% {formatRupiah(group.dpAmount)}
+                </span>
+              </p>
+            </SectionCard>
+          ))}
+        </div>
 
-      <section aria-labelledby="summary-heading" className="rounded-lg border border-border bg-surface p-4">
-        <h2 id="summary-heading">Ringkasan</h2>
-        <dl>
-          <dt>Total pcs</dt>
-          <dd>{cart.totalPcs}</dd>
-          <dt>Subtotal</dt>
-          <dd>{formatRupiah(cart.subtotal)}</dd>
-          <dt>DP {settings.dp_percent}% yang harus dibayar</dt>
-          <dd className="font-semibold">{formatRupiah(cart.dpAmount)}</dd>
-          <dt>Batas bayar DP</dt>
-          <dd>
-            {formatDateTime(dpDeadline)} ({settings.dp_window_hours} jam setelah checkout)
-          </dd>
-        </dl>
-        {cart.groups.length > 1 && (
-          <p>Keranjang berisi {cart.groups.length} batch PO, jadi akan dibuat {cart.groups.length} pesanan terpisah.</p>
-        )}
-        <div className="flex flex-wrap items-start gap-3">
+        <SectionCard id="summary-heading" title="Ringkasan" className="lg:sticky lg:top-24">
+          <SummaryList
+            rows={[
+              { label: "Total pcs", value: cart.totalPcs },
+              { label: "Subtotal", value: formatRupiah(cart.subtotal) },
+              {
+                label: `DP ${settings.dp_percent}% yang harus dibayar`,
+                value: formatRupiah(cart.dpAmount),
+                strong: true,
+              },
+            ]}
+          />
+          <p className="text-sm text-muted-foreground">
+            Batas bayar DP {formatDateTime(dpDeadline)} ({settings.dp_window_hours} jam setelah checkout).
+          </p>
+          {cart.groups.length > 1 && (
+            <p className="text-sm text-muted-foreground">
+              Keranjang berisi {cart.groups.length} batch PO, jadi akan dibuat {cart.groups.length} pesanan terpisah.
+            </p>
+          )}
           {cart.hasUnavailableItems ? (
             <p role="alert">Hapus barang yang tidak tersedia sebelum checkout.</p>
           ) : (
@@ -157,11 +180,14 @@ const CartPage = async (): Promise<React.ReactNode> => {
             action={clearCart}
             submitLabel="Kosongkan keranjang"
             pendingLabel="Mengosongkan…"
-            confirmMessage="Kosongkan seluruh keranjang?"
-            tone="secondary"
+            confirmTitle="Kosongkan keranjang?"
+            confirmMessage="Semua barang di keranjang akan dihapus."
+            tone="ghost"
+            className="!items-stretch"
+            buttonClassName="text-muted-foreground hover:text-danger"
           />
-        </div>
-      </section>
+        </SectionCard>
+      </div>
     </main>
   );
 };
