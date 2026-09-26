@@ -8,7 +8,7 @@ const LoginPage = async (): Promise<React.ReactNode> => {
   const user = await getCurrentUser();
   if (user) redirect(homePathFor(user.role));
   return (
-    <AuthCard>
+    <AuthCard homeLink>
       <main>
         <div className="flex flex-col gap-1">
           <h1>Masuk</h1>

@@ -245,6 +245,10 @@
     outline-color: var(--ochre);
   }
 
+  [data-brand] [data-surface] :focus-visible {
+    outline-color: var(--text);
+  }
+
   h1 {
     font-size: var(--text-2xl);
     line-height: var(--text-2xl--line-height);
