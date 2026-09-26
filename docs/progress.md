@@ -65,3 +65,8 @@
 - Header with active navigation and unread notifications; login and password cards.
 - Order grid (Zustand, arrow keys, phone accordion with steppers, sticky totals), custom-size disclosure with inline validation, cart cards with checkout dialog, DP countdown, copy buttons, status badges, timeline with icons, printable invoice, two-column DP review, dashboard tiles.
 - Tests: axe WCAG 2.1 AA scans of login, 5 agent pages and 8 admin pages (no violations), grid keyboard navigation, phone accordion; existing e2e updated for the dialog and disclosure. Design audit notes in `docs/design-audit.md`.
+
+## F7 — Recap
+
+- SQL function `recap_by_agent_series(from, to)`; admin recap page with period filter, per-agent tables with category totals, period totals; XLSX export.
+- Tests: pgTAP fixture (quantities and values across orders of one batch, cancelled excluded, received DP/settlement only, value equals order subtotals, period boundary), unit (summaries, period parsing), e2e (page and XLSX match a fixture order; agents blocked), axe on `/recap`.

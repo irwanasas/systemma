@@ -20,6 +20,7 @@ export const navLinksByRole: Record<AppRole, NavLink[]> = {
     { href: "/products", label: "Produk" },
     { href: "/po-batches", label: "Batch PO" },
     { href: "/agents", label: "Agen" },
+    { href: "/recap", label: "Rekap" },
     { href: "/announcements", label: "Pengumuman" },
     { href: "/settings", label: "Pengaturan" },
     { href: "/audit-log", label: "Log audit" },

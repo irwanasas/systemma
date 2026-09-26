@@ -554,6 +554,11 @@ isOneToOne: false
               "batch_label": string,"cart_item_id": string,"color_name": string,"custom_chest_cm": number,"custom_length_cm": number,"is_orderable": boolean,"line_total": number,"po_batch_id": string,"product_id": string,"product_name": string,"qty": number,"size_code": string,"unit_price": number,"variant_id": string
             }[]
                            },
+"recap_by_agent_series":
+{ Args: { "p_from": string,"p_to": string }; Returns: {
+              "agent_code": string,"agent_id": string,"agent_name": string,"batch_label": string,"category_code": string,"category_name": string,"dp_received": number,"order_count": number,"order_value": number,"product_name": string,"qty": number,"settlement_received": number
+            }[]
+                           },
 "review_dp":
 { Args: { "p_actor_id": string,"p_approve": boolean,"p_payment_id": string,"p_reason"?: string }; Returns: undefined
                            },

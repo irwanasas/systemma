@@ -27,7 +27,7 @@ test("agent pages have no WCAG 2.1 AA violations", async ({ page }) => {
 test("admin pages have no WCAG 2.1 AA violations", async ({ page }) => {
   await login(page, "e2e-admin");
   await expectPath(page, "/dashboard");
-  for (const path of ["/dashboard", "/orders", "/payments", "/products", "/po-batches", "/agents", "/settings", "/audit-log"]) {
+  for (const path of ["/dashboard", "/orders", "/payments", "/products", "/po-batches", "/agents", "/settings", "/audit-log", "/recap"]) {
     await expectNoViolations(page, path);
   }
 });
