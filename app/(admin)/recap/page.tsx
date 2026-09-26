@@ -1,7 +1,10 @@
 import { CaretDown, ChartBar, DownloadSimple } from "@phosphor-icons/react/ssr";
+import { ChartCard } from "@/components/charts/chart-card";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { FilterChips } from "@/components/ui/filter-chips";
+import { dailyValues } from "@/features/dashboard/buckets";
+import { listOrderValues } from "@/features/dashboard/server/queries";
 import { jakartaToday, parseRecapPeriod, recapPresets } from "@/features/recap/period";
 import { getRecapRows } from "@/features/recap/server/queries";
 import { RECAP_CATEGORIES, summarizeRecap } from "@/features/recap/summarize";
@@ -14,7 +17,14 @@ const RecapPage = async ({ searchParams }: PageProps<"/recap">): Promise<React.R
   await requireRole("admin");
   const { from, to } = await searchParams;
   const period = parseRecapPeriod(from, to);
-  const summary = summarizeRecap(await getRecapRows(period));
+  const [recapRows, orderValues] = await Promise.all([
+    getRecapRows(period),
+    listOrderValues(period.fromIso, period.toExclusiveIso),
+  ]);
+  const summary = summarizeRecap(recapRows);
+  const agentValues = [...summary.agents]
+    .sort((first, second) => second.totals.orderValue - first.totals.orderValue)
+    .map((agent) => ({ label: agent.agentName, value: agent.totals.orderValue }));
   const exportHref = `/recap/export?${new URLSearchParams({ from: period.from, to: period.to })}`;
   const presets = recapPresets(jakartaToday()).map(({ label, from: presetFrom, to: presetTo }) => ({
     label,
@@ -65,9 +75,9 @@ const RecapPage = async ({ searchParams }: PageProps<"/recap">): Promise<React.R
         <h2 id="totals-heading">Total periode</h2>
         <dl className="!grid grid-cols-2 gap-3 xl:grid-cols-4">
           {tiles.map(({ label, value }) => (
-            <div key={label} className="flex flex-col gap-1 rounded-xl border border-border bg-surface p-4">
-              <dt className="text-ui">{label}</dt>
-              <dd className="text-xl font-semibold tabular-nums">{value}</dd>
+            <div key={label} className="flex min-w-0 flex-col gap-1 rounded-xl border border-border border-t-[3px] border-t-ochre bg-surface p-3 sm:p-4">
+              <dt className="text-sm sm:text-ui">{label}</dt>
+              <dd className="text-base font-semibold break-words tabular-nums sm:text-xl">{value}</dd>
             </div>
           ))}
         </dl>
@@ -79,6 +89,25 @@ const RecapPage = async ({ searchParams }: PageProps<"/recap">): Promise<React.R
           ))}
         </p>
       </section>
+
+      <div className="grid gap-6 xl:grid-cols-2">
+        <ChartCard
+          id="daily-chart-heading"
+          title="Nilai pesanan per hari"
+          description="Periode yang dipilih, tanpa pesanan dibatalkan dan kedaluwarsa."
+          kind="line"
+          unit="rupiah"
+          data={dailyValues(orderValues, period.from, period.to)}
+        />
+        <ChartCard
+          id="agent-chart-heading"
+          title="Nilai pesanan per agen"
+          description="Periode yang dipilih."
+          kind="bar-horizontal"
+          unit="rupiah"
+          data={agentValues}
+        />
+      </div>
 
       {summary.agents.length === 0 ? (
         <EmptyState icon={ChartBar} title="Tidak ada pesanan" description="Tidak ada pesanan pada periode ini." />

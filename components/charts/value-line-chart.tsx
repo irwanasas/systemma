@@ -19,12 +19,12 @@ const ValueLineChart = ({ data, seriesName, formatValue }: ValueLineChartProps):
       <YAxis {...axisProps} width={72} tickFormatter={(value: number) => formatRupiahCompact(value)} />
       <Tooltip {...tooltipProps} formatter={(value) => [formatValue(Number(value)), seriesName]} />
       <Line
-        type="monotone"
+        type={data.length > 14 ? "linear" : "monotone"}
         dataKey="value"
         name={seriesName}
         stroke="var(--color-chart-1)"
-        strokeWidth={2.5}
-        dot={{ r: 3, fill: "var(--color-chart-1)", strokeWidth: 0 }}
+        strokeWidth={data.length > 14 ? 2 : 2.5}
+        dot={data.length > 14 ? false : { r: 3, fill: "var(--color-chart-1)", strokeWidth: 0 }}
         activeDot={{ r: 5 }}
         isAnimationActive={false}
       />
