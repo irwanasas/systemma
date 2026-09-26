@@ -39,7 +39,7 @@ export const ChartCard = ({ id, title, description, kind, unit, data, className 
         <p className="text-sm text-muted-foreground">{description}</p>
       </div>
       {hasData ? (
-        <div aria-hidden="true" style={{ height }}>
+        <div role="group" aria-label={`Grafik ${title}`} style={{ height }}>
           {kind === "line" ? (
             <ValueLineChart data={data} seriesName={title} formatValue={formatValue} />
           ) : (
