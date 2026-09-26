@@ -2,8 +2,9 @@ import { UserPlus } from "@phosphor-icons/react/ssr";
 import { FormDialog } from "@/components/ui/form-dialog";
 import { createAgent } from "@/features/auth/server/actions";
 
-export const CreateAgentForm = (): React.ReactNode => (
+export const CreateAgentForm = ({ triggerVariant = "default" }: { triggerVariant?: "default" | "outline" }): React.ReactNode => (
   <FormDialog
+    triggerVariant={triggerVariant}
     action={createAgent}
     triggerLabel="Tambah agen"
     triggerIcon={<UserPlus aria-hidden="true" />}

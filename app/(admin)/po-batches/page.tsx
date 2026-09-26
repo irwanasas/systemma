@@ -1,14 +1,14 @@
 import Link from "next/link";
-import { CalendarPlus, Plus } from "@phosphor-icons/react/ssr";
+import { CalendarPlus } from "@phosphor-icons/react/ssr";
 import { ActionForm } from "@/components/ui/action-form";
 import { DateTime } from "@/components/ui/date-time";
 import { EmptyState } from "@/components/ui/empty-state";
-import { FormDialog } from "@/components/ui/form-dialog";
 import { TableCard } from "@/components/ui/table-card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { BatchStatusBadge } from "@/features/catalog/components/batch-status-badge";
 import type { BatchStatus } from "@/features/catalog/types";
-import { createBatch, setBatchStatus } from "@/features/po-batches/server/actions";
+import { CreateBatchDialog } from "@/features/po-batches/components/create-batch-dialog";
+import { setBatchStatus } from "@/features/po-batches/server/actions";
 import { listBatches, listProductOptions } from "@/features/po-batches/server/queries";
 import { getSettings } from "@/features/settings/server/queries";
 import { requireRole } from "@/lib/auth/require-role";
@@ -28,48 +28,7 @@ const PoBatchesPage = async (): Promise<React.ReactNode> => {
     <main>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1>Batch PO</h1>
-        <FormDialog
-          action={createBatch}
-          triggerLabel="Batch baru"
-          triggerIcon={<Plus aria-hidden="true" />}
-          title="Buat batch"
-          description="Batch baru dibuat dengan status terjadwal. Buka batch agar agen bisa memesan."
-          submitLabel="Buat batch"
-          pendingLabel="Membuat…"
-        >
-          <div>
-            <label htmlFor="productId">Seri</label>
-            <select id="productId" name="productId" defaultValue="" required>
-              <option value="" disabled>
-                Pilih seri
-              </option>
-              {products.map(({ id, name }) => (
-                <option key={id} value={id}>
-                  {name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label htmlFor="label">Label (opsional)</label>
-              <input id="label" name="label" placeholder="Otomatis B1, B2, …" />
-            </div>
-            <div>
-              <label htmlFor="etaDays">Estimasi selesai (hari)</label>
-              <input id="etaDays" name="etaDays" type="number" min={1} defaultValue={settings.eta_days_default} required />
-            </div>
-            <div>
-              <label htmlFor="opensAt">Buka (WIB, opsional)</label>
-              <input id="opensAt" name="opensAt" type="datetime-local" />
-            </div>
-            <div>
-              <label htmlFor="closesAt">Tutup (WIB, opsional)</label>
-              <input id="closesAt" name="closesAt" type="datetime-local" />
-            </div>
-          </div>
-          <p className="text-sm text-muted-foreground">Estimasi dihitung dari tanggal DP disetujui.</p>
-        </FormDialog>
+        <CreateBatchDialog products={products} etaDaysDefault={settings.eta_days_default} />
       </div>
       {batches.length === 0 ? (
         <EmptyState icon={CalendarPlus} title="Belum ada batch" description="Buat batch untuk membuka pre-order sebuah seri." />

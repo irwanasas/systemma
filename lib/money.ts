@@ -24,3 +24,7 @@ export const parseRupiahInput = (input: string): Rupiah | null => {
 
 export const dpAmountFor = (subtotal: number, dpPercent: number): Rupiah =>
   toRupiah(Math.floor((subtotal * dpPercent + 99) / 100));
+
+const compactFormatter = new Intl.NumberFormat("id-ID", { notation: "compact", maximumFractionDigits: 1 });
+
+export const formatRupiahCompact = (value: number): string => `Rp ${compactFormatter.format(value)}`;

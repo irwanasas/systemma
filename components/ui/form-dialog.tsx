@@ -25,6 +25,7 @@ type FormDialogProps = {
   submitLabel: string;
   pendingLabel?: string;
   closeOnSuccess?: boolean;
+  triggerVariant?: "default" | "outline";
   children: React.ReactNode;
 };
 
@@ -86,13 +87,14 @@ export const FormDialog = ({
   title,
   description,
   closeOnSuccess = true,
+  triggerVariant = "default",
   ...formProps
 }: FormDialogProps): React.ReactNode => {
   const [open, setOpen] = useState(false);
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="min-h-[var(--control-height)] text-ui">
+        <Button variant={triggerVariant} className="min-h-[var(--control-height)] text-ui">
           {triggerIcon}
           {triggerLabel}
         </Button>
