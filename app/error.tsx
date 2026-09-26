@@ -1,6 +1,8 @@
 "use client";
 
+import { WarningCircle } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
+import { StatusPage } from "@/components/ui/status-page";
 
 type ErrorPageProps = {
   error: Error & { digest?: string };
@@ -8,17 +10,21 @@ type ErrorPageProps = {
 };
 
 const ErrorPage = ({ error, reset }: ErrorPageProps): React.ReactNode => (
-  <main className="mx-auto flex max-w-xl flex-col gap-4 px-4 py-16">
-    <h1>Maaf, terjadi kesalahan</h1>
+  <StatusPage
+    icon={WarningCircle}
+    title="Maaf, terjadi kesalahan"
+    action={
+      <Button onClick={reset} className="min-h-11 px-5 text-ui font-semibold">
+        Coba lagi
+      </Button>
+    }
+  >
     <p>
       Permintaan Anda belum berhasil diproses. Data yang sudah tersimpan tetap aman. Coba lagi beberapa saat lagi; jika masih
       gagal, hubungi admin Aurora dan sebutkan kode di bawah.
     </p>
-    {error.digest && <p className="text-sm text-muted-foreground">Kode kesalahan: {error.digest}</p>}
-    <Button onClick={reset} className="min-h-11 self-start px-5 font-semibold">
-      Coba lagi
-    </Button>
-  </main>
+    {error.digest && <p className="text-sm">Kode kesalahan: {error.digest}</p>}
+  </StatusPage>
 );
 
 export default ErrorPage;

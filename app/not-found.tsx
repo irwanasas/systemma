@@ -1,13 +1,22 @@
 import Link from "next/link";
+import { Compass } from "@phosphor-icons/react/ssr";
+import { Button } from "@/components/ui/button";
+import { StatusPage } from "@/components/ui/status-page";
 
 const NotFoundPage = (): React.ReactNode => (
-  <main className="mx-auto flex max-w-xl flex-col gap-4 px-4 py-16">
-    <h1>Halaman tidak ditemukan</h1>
+  <StatusPage
+    icon={Compass}
+    title="Halaman tidak ditemukan"
+    action={
+      <Button asChild className="min-h-11 px-5 text-ui">
+        <Link href="/" className="text-primary-foreground no-underline hover:no-underline">
+          Kembali ke beranda
+        </Link>
+      </Button>
+    }
+  >
     <p>Halaman yang Anda cari tidak ada atau Anda tidak punya akses ke halaman ini.</p>
-    <p>
-      <Link href="/">Kembali ke beranda</Link>
-    </p>
-  </main>
+  </StatusPage>
 );
 
 export default NotFoundPage;

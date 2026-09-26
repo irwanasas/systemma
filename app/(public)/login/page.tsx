@@ -10,9 +10,9 @@ const LoginPage = async (): Promise<React.ReactNode> => {
   return (
     <AuthCard>
       <main>
-        <div>
-          <p className="text-sm font-semibold tracking-wide text-primary-strong uppercase">Aurora Hijab</p>
+        <div className="flex flex-col gap-1">
           <h1>Masuk</h1>
+          <p className="text-ui text-muted-foreground">Gunakan username dan password dari admin Aurora.</p>
         </div>
         <LoginForm />
       </main>
