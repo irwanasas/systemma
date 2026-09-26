@@ -17,6 +17,7 @@ export type CartBatchGroup = {
   poBatchId: string;
   batchLabel: string;
   productName: string;
+  editSlug: string | null;
   lines: CartLine[];
   totalPcs: number;
   subtotal: Rupiah;

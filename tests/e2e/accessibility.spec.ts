@@ -24,6 +24,16 @@ test("agent pages have no WCAG 2.1 AA violations", async ({ page }) => {
   }
 });
 
+test("order modal has no WCAG 2.1 AA violations", async ({ page }) => {
+  await login(page, "e2e-a11y");
+  await expectPath(page, "/catalog");
+  await page.getByRole("link", { name: "E2E Keranjang" }).click();
+  await expect(page.getByRole("dialog", { name: "E2E Keranjang" })).toBeVisible();
+  await page.getByText("Tambah ukuran custom", { exact: true }).click();
+  const { violations } = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
+  expect(violations.map(({ id, nodes }) => `${id}: ${nodes.map(({ target }) => target.join(" ")).join(", ")}`)).toEqual([]);
+});
+
 test("admin pages have no WCAG 2.1 AA violations", async ({ page }) => {
   await login(page, "e2e-admin");
   await expectPath(page, "/dashboard");

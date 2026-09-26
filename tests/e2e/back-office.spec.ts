@@ -37,7 +37,7 @@ test("admin settings, announcements, notifications and audit log", async ({ brow
 
   await agent.goto("/catalog/e2e-cart");
   await agent.getByLabel("Jumlah Putih ukuran S").fill("2");
-  await agent.getByRole("button", { name: "Simpan ke keranjang" }).click();
+  await agent.getByRole("button", { name: "Tambah ke keranjang" }).click();
   await expect(agent.getByRole("status")).toHaveText("Keranjang diperbarui.");
   await agent.goto("/cart");
   await agent.getByRole("button", { name: "Checkout" }).click();

@@ -11,11 +11,14 @@ type CustomSizeFormProps = {
   colors: { id: string; name: string }[];
   chestMaxCm: number;
   lengthMaxCm: number;
+  onDirtyChange?: (dirty: boolean) => void;
 };
 
 type Measurement = "chest" | "length";
 
 const initialState: FormState = {};
+
+const emptyValues: Record<Measurement, string> = { chest: "", length: "" };
 
 const validate = (label: string, raw: string, max: number): string | null => {
   if (!raw) return `${label} wajib diisi.`;
@@ -27,10 +30,25 @@ const validate = (label: string, raw: string, max: number): string | null => {
   return null;
 };
 
-export const CustomSizeForm = ({ poBatchId, colors, chestMaxCm, lengthMaxCm }: CustomSizeFormProps): React.ReactNode => {
-  const [state, formAction, isPending] = useActionState(addCustomItem, initialState);
-  const [values, setValues] = useState<Record<Measurement, string>>({ chest: "", length: "" });
+export const CustomSizeForm = ({
+  poBatchId,
+  colors,
+  chestMaxCm,
+  lengthMaxCm,
+  onDirtyChange,
+}: CustomSizeFormProps): React.ReactNode => {
+  const [colorId, setColorId] = useState("");
+  const [values, setValues] = useState<Record<Measurement, string>>(emptyValues);
   const [errors, setErrors] = useState<Record<Measurement, string | null>>({ chest: null, length: null });
+  const [state, formAction, isPending] = useActionState(async (previous: FormState, formData: FormData) => {
+    const result = await addCustomItem(previous, formData);
+    if (!result.error) {
+      setColorId("");
+      setValues(emptyValues);
+      onDirtyChange?.(false);
+    }
+    return result;
+  }, initialState);
 
   const rules: Record<Measurement, { label: string; max: number }> = {
     chest: { label: "Lingkar dada", max: chestMaxCm },
@@ -42,6 +60,9 @@ export const CustomSizeForm = ({ poBatchId, colors, chestMaxCm, lengthMaxCm }: C
     setErrors((current) => ({ ...current, [field]: error }));
     return error;
   };
+
+  const reportDirty = (nextColorId: string, nextValues: Record<Measurement, string>): void =>
+    onDirtyChange?.(Boolean(nextColorId || nextValues.chest || nextValues.length));
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
@@ -69,13 +90,15 @@ export const CustomSizeForm = ({ poBatchId, colors, chestMaxCm, lengthMaxCm }: C
         aria-invalid={errors[field] ? true : undefined}
         aria-describedby={errors[field] ? `${name}-error` : undefined}
         onChange={(event) => {
-          setValues((current) => ({ ...current, [field]: event.target.value }));
+          const nextValues = { ...values, [field]: event.target.value };
+          setValues(nextValues);
+          reportDirty(colorId, nextValues);
           if (errors[field]) check(field, event.target.value);
         }}
         onBlur={(event) => event.target.value && check(field, event.target.value)}
       />
       {errors[field] && (
-        <p id={`${name}-error`} role="alert">
+        <p id={`${name}-error`} role="alert" className="mt-1 text-sm">
           {errors[field]}
         </p>
       )}
@@ -85,30 +108,41 @@ export const CustomSizeForm = ({ poBatchId, colors, chestMaxCm, lengthMaxCm }: C
   return (
     <form onSubmit={handleSubmit} noValidate aria-busy={isPending}>
       <input type="hidden" name="poBatchId" value={poBatchId} />
-      <div>
-        <label htmlFor="colorId">Warna</label>
-        <select id="colorId" name="colorId" defaultValue="" required>
-          <option value="" disabled>
-            Pilih warna
-          </option>
-          {colors.map(({ id, name }) => (
-            <option key={id} value={id}>
-              {name}
+      <div className="grid gap-3 sm:grid-cols-2">
+        <div>
+          <label htmlFor="colorId">Warna</label>
+          <select
+            id="colorId"
+            name="colorId"
+            value={colorId}
+            required
+            onChange={(event) => {
+              setColorId(event.target.value);
+              reportDirty(event.target.value, values);
+            }}
+          >
+            <option value="" disabled>
+              Pilih warna
             </option>
-          ))}
-        </select>
-      </div>
-      {measurementField("chest", "chestCm")}
-      {measurementField("length", "lengthCm")}
-      <div>
-        <label htmlFor="customQty">Jumlah (pcs)</label>
-        <input id="customQty" name="qty" type="number" min={1} defaultValue={1} required />
+            {colors.map(({ id, name }) => (
+              <option key={id} value={id}>
+                {name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="customQty">Jumlah (pcs)</label>
+          <input id="customQty" name="qty" type="number" min={1} defaultValue={1} required />
+        </div>
+        {measurementField("chest", "chestCm")}
+        {measurementField("length", "lengthCm")}
       </div>
       {state.error && <p role="alert">{state.error}</p>}
       {state.message && <p role="status">{state.message}</p>}
-      <Button type="submit" disabled={isPending} className="min-h-[var(--control-height)] px-4 font-semibold">
+      <Button type="submit" variant="outline" disabled={isPending} className="min-h-[var(--control-height)] px-4 font-semibold">
         {isPending && <CircleNotch aria-hidden="true" className="animate-spin" />}
-        {isPending ? "Menambahkan…" : "Tambah ukuran custom"}
+        {isPending ? "Menambahkan…" : "Simpan ukuran custom"}
       </Button>
     </form>
   );

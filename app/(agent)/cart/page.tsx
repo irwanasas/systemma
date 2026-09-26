@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import Link from "next/link";
-import { WarningCircle } from "@phosphor-icons/react/ssr";
+import { PencilSimple, WarningCircle } from "@phosphor-icons/react/ssr";
+import { Button } from "@/components/ui/button";
 import { ActionForm } from "@/components/ui/action-form";
 import { CheckoutDialog } from "@/features/cart/components/checkout-dialog";
 import { clearCart, removeCartItem, updateCartLineQty } from "@/features/cart/server/actions";
@@ -38,9 +39,19 @@ const CartPage = async (): Promise<React.ReactNode> => {
           aria-labelledby={`batch-${group.poBatchId}`}
           className="rounded-lg border border-border bg-surface p-4"
         >
-          <h2 id={`batch-${group.poBatchId}`}>
-            {group.productName} · PO {group.batchLabel}
-          </h2>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 id={`batch-${group.poBatchId}`}>
+              {group.productName} · PO {group.batchLabel}
+            </h2>
+            {group.editSlug && (
+              <Button asChild variant="outline" size="sm" className="text-ui">
+                <Link href={`/catalog/${group.editSlug}`} aria-label={`Ubah ${group.productName}`} className="text-foreground no-underline">
+                  <PencilSimple aria-hidden="true" />
+                  Ubah
+                </Link>
+              </Button>
+            )}
+          </div>
           <div className="overflow-x-auto">
             <table>
               <thead>

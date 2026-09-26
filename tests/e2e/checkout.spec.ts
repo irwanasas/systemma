@@ -5,36 +5,56 @@ test("agent fills the grid, adds a custom size, and checks out two batches as tw
   await login(page, "e2e-buyer");
   await expectPath(page, "/catalog");
 
-  await page.goto("/catalog/e2e-cart");
-  await page.getByLabel("Jumlah Hitam ukuran S").fill("2");
-  await page.getByLabel("Jumlah Putih ukuran M").fill("1");
-  const gridForm = page.locator("form", { has: page.getByRole("button", { name: "Simpan ke keranjang" }) });
-  await gridForm.getByRole("button", { name: "Simpan ke keranjang" }).click();
-  await expect(gridForm.getByRole("status")).toHaveText("Keranjang diperbarui.");
+  await page.getByRole("link", { name: "E2E Keranjang" }).click();
+  const modal = page.getByRole("dialog", { name: "E2E Keranjang" });
+  await expect(modal).toBeVisible();
+  await expectPath(page, "/catalog/e2e-cart");
 
-  await page.getByText("Custom ukuran", { exact: true }).click();
-  const customForm = page.locator("form", { has: page.getByRole("button", { name: "Tambah ukuran custom" }) });
+  await modal.getByText("Tambah ukuran custom", { exact: true }).click();
+  const customForm = modal.locator("form", { has: page.getByRole("button", { name: "Simpan ukuran custom" }) });
   await customForm.getByLabel("Warna").selectOption({ label: "Putih" });
   await customForm.getByLabel(/Lingkar dada/).fill("150");
   await customForm.getByLabel(/Panjang badan/).fill("140");
-  await customForm.getByRole("button", { name: "Tambah ukuran custom" }).click();
+  await customForm.getByRole("button", { name: "Simpan ukuran custom" }).click();
   await expect(customForm.getByRole("alert")).toHaveText("Lingkar dada maksimal 140 cm.");
   await customForm.getByLabel(/Lingkar dada/).fill("120.5");
-  await customForm.getByRole("button", { name: "Tambah ukuran custom" }).click();
+  await customForm.getByRole("button", { name: "Simpan ukuran custom" }).click();
   await expect(customForm.getByRole("status")).toHaveText("Ukuran custom ditambahkan ke keranjang.");
 
-  await page.goto("/catalog/e2e-cart-two");
-  await page.getByLabel("Jumlah Hitam ukuran M").fill("3");
-  await page.getByRole("button", { name: "Simpan ke keranjang" }).click();
-  await expect(page.getByRole("status")).toHaveText("Keranjang diperbarui.");
+  await modal.getByLabel("Jumlah Hitam ukuran S").fill("2");
+  await modal.getByLabel("Jumlah Putih ukuran M").fill("1");
+  await modal.getByRole("button", { name: "Tambah ke keranjang" }).click();
+  await expect(modal).toBeHidden();
+  await expect(page.getByText("Keranjang diperbarui.")).toBeVisible();
+  await expectPath(page, "/catalog");
+  await expect(page.getByRole("link", { name: "Keranjang, 4 pcs" })).toBeVisible();
 
-  await page.goto("/cart");
+  await page.getByRole("link", { name: "E2E Kedua" }).click();
+  const secondModal = page.getByRole("dialog", { name: "E2E Kedua" });
+  await secondModal.getByLabel("Jumlah Hitam ukuran M").fill("3");
+  await secondModal.getByRole("button", { name: "Tambah ke keranjang" }).click();
+  await expect(secondModal).toBeHidden();
+  await expect(page.getByText("Keranjang diperbarui.")).toBeVisible();
+
+  await page.getByRole("button", { name: "Lihat keranjang" }).click();
+  await expectPath(page, "/cart");
   await expect(page.getByRole("heading", { name: "E2E Keranjang · PO B1" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "E2E Kedua · PO B1" })).toBeVisible();
   const summary = page.getByRole("region", { name: "Ringkasan" });
   await expect(summary).toContainText("Rp 830.000".replace(" ", " "));
   await expect(summary).toContainText("Rp 207.500".replace(" ", " "));
   await expect(page.getByText("akan dibuat 2 pesanan terpisah")).toBeVisible();
+
+  await page.getByRole("link", { name: "Ubah E2E Kedua" }).click();
+  const editModal = page.getByRole("dialog", { name: "E2E Kedua" });
+  await expect(editModal.getByLabel("Jumlah Hitam ukuran M")).toHaveValue("3");
+  await editModal.getByLabel("Jumlah Hitam ukuran M").fill("5");
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("alertdialog", { name: "Buang perubahan?" })).toBeVisible();
+  await page.getByRole("button", { name: "Buang" }).click();
+  await expect(editModal).toBeHidden();
+  await expectPath(page, "/cart");
+  await expect(summary).toContainText("Rp 830.000".replace(" ", " "));
 
   await page.getByRole("button", { name: "Checkout" }).click();
   await expect(page.getByRole("dialog")).toContainText("Pastikan pesanan sudah benar. Setelah DP dibayar, pesanan tidak bisa diubah atau dibatalkan.");
@@ -57,7 +77,7 @@ test("agent cancels an order before paying DP", async ({ page }) => {
   await expectPath(page, "/catalog");
   await page.goto("/catalog/e2e-cart");
   await page.getByLabel("Jumlah Hitam ukuran S").fill("1");
-  await page.getByRole("button", { name: "Simpan ke keranjang" }).click();
+  await page.getByRole("button", { name: "Tambah ke keranjang" }).click();
   await expect(page.getByRole("status")).toHaveText("Keranjang diperbarui.");
   await page.goto("/cart");
   await page.getByRole("button", { name: "Checkout" }).click();

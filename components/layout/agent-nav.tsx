@@ -18,6 +18,7 @@ export const AgentTopNav = ({ cartCount }: { cartCount: number }): React.ReactNo
               <Link
                 href={href}
                 aria-current={isActive ? "page" : undefined}
+                aria-label={href === "/cart" && cartCount > 0 ? `${label}, ${cartCount} pcs` : undefined}
                 className={cn(
                   "flex min-h-11 items-center gap-2 rounded-md px-3 text-ui text-foreground no-underline transition-colors duration-150 hover:bg-muted",
                   isActive && "bg-primary-soft font-semibold text-primary-strong",

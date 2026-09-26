@@ -15,6 +15,17 @@ export const getDpAmount = async (subtotal: Rupiah): Promise<Rupiah> => {
   return toRupiah(data);
 };
 
+const getEditableBatchSlugs = async (poBatchIds: string[]): Promise<Map<string, string>> => {
+  const { data, error } = await getAdminClient()
+    .from("po_batches")
+    .select("id, products!inner(slug, status)")
+    .in("id", poBatchIds)
+    .eq("status", "open")
+    .eq("products.status", "active");
+  if (error) throw error;
+  return new Map(data.map(({ id, products }) => [id, products.slug]));
+};
+
 const emptyCart: Cart = { groups: [], totalPcs: 0, subtotal: toRupiah(0), dpAmount: toRupiah(0), hasUnavailableItems: false };
 
 export const getCart = async (agentId: string): Promise<Cart> => {
@@ -24,6 +35,7 @@ export const getCart = async (agentId: string): Promise<Cart> => {
   if (error) throw error;
   if (!rows.length) return emptyCart;
 
+  const editSlugs = await getEditableBatchSlugs([...new Set(rows.map((row) => row.po_batch_id))]);
   const groupsByBatch = new Map<string, Omit<CartBatchGroup, "dpAmount" | "subtotal"> & { subtotal: number }>();
   for (const row of rows) {
     const line: CartLine = {
@@ -42,6 +54,7 @@ export const getCart = async (agentId: string): Promise<Cart> => {
       poBatchId: row.po_batch_id,
       batchLabel: row.batch_label,
       productName: row.product_name,
+      editSlug: editSlugs.get(row.po_batch_id) ?? null,
       lines: [],
       totalPcs: 0,
       subtotal: 0,

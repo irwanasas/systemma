@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, CalendarBlank } from "@phosphor-icons/react/ssr";
+import { ColorSwatch } from "@/features/catalog/components/color-swatch";
 import type { CatalogListItem } from "@/features/catalog/server/queries";
 import { formatDateTime, formatShortDateTime } from "@/lib/dates";
 import { formatRupiah } from "@/lib/money";
@@ -18,11 +19,7 @@ export const CatalogCard = ({ product }: { product: CatalogListItem }): React.Re
         </span>
         <span className="flex items-center gap-1.5">
           {shownColors.map(({ name: colorName, hex }) => (
-            <span
-              key={colorName}
-              className="size-5 rounded-full border border-black/15 bg-muted"
-              style={hex ? { backgroundColor: hex } : undefined}
-            />
+            <ColorSwatch key={colorName} hex={hex} className="size-5" />
           ))}
           {hiddenColorCount > 0 && <span className="text-sm font-medium text-primary-strong">+{hiddenColorCount}</span>}
         </span>
