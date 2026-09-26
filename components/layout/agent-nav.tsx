@@ -20,8 +20,9 @@ export const AgentTopNav = ({ cartCount }: { cartCount: number }): React.ReactNo
                 aria-current={isActive ? "page" : undefined}
                 aria-label={href === "/cart" && cartCount > 0 ? `${label}, ${cartCount} pcs` : undefined}
                 className={cn(
-                  "flex min-h-11 items-center gap-2 rounded-md px-3 text-ui text-foreground no-underline transition-colors duration-150 hover:bg-muted",
-                  isActive && "bg-primary-soft font-semibold text-primary-strong",
+                  "relative flex min-h-11 items-center gap-2 rounded-md px-3 text-ui text-foreground no-underline transition-colors duration-150 hover:bg-muted hover:no-underline",
+                  isActive &&
+                    "font-semibold text-primary-strong after:absolute after:inset-x-3 after:-bottom-[11px] after:h-[3px] after:rounded-full after:bg-ochre",
                 )}
               >
                 {href === "/announcements" ? "Info" : label}
@@ -53,8 +54,9 @@ export const AgentBottomNav = ({ cartCount }: { cartCount: number }): React.Reac
                 aria-current={isActive ? "page" : undefined}
                 aria-label={href === "/cart" && cartCount > 0 ? `${label}, ${cartCount} pcs` : label}
                 className={cn(
-                  "relative flex min-h-14 flex-col items-center justify-center gap-0.5 text-xs text-muted-foreground no-underline",
-                  isActive && "font-semibold text-primary-strong",
+                  "relative flex min-h-14 flex-col items-center justify-center gap-0.5 text-xs text-muted-foreground no-underline hover:no-underline",
+                  isActive &&
+                    "font-semibold text-primary-strong before:absolute before:inset-x-6 before:top-0 before:h-[3px] before:rounded-b-full before:bg-ochre",
                 )}
               >
                 <span className="relative">

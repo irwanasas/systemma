@@ -3,6 +3,7 @@ import { AccountMenu } from "@/components/layout/account-menu";
 import { AdminSidebar } from "@/components/layout/admin-sidebar";
 import { AgentBottomNav, AgentTopNav } from "@/components/layout/agent-nav";
 import { NotificationBell } from "@/components/layout/notification-bell";
+import { BrandMark } from "@/components/brand/brand-mark";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import type { CurrentUser } from "@/features/auth/types";
@@ -18,9 +19,12 @@ const AdminShell = async ({ user, children }: { user: CurrentUser; children: Rea
         <SidebarInset className="min-h-dvh bg-background">
           <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b border-border bg-surface px-4 lg:px-8">
             <SidebarTrigger className="size-10 lg:hidden" />
-            <Link href="/dashboard" className="font-semibold text-foreground no-underline lg:hidden">
-              Aurora
+            <Link href="/dashboard" className="text-foreground no-underline hover:no-underline lg:hidden">
+              <BrandMark size="sm" />
             </Link>
+            <span className="hidden rounded-full bg-sand px-2.5 py-0.5 text-xs font-semibold text-foreground sm:inline-block">
+              Admin
+            </span>
             <div className="ml-auto flex items-center gap-1">
               <ThemeToggle className="size-10" />
               <NotificationBell unreadCount={unreadCount} />
@@ -40,8 +44,8 @@ const AgentShell = async ({ user, children }: { user: CurrentUser; children: Rea
     <div data-density="comfortable" className="min-h-dvh pb-20 md:pb-0">
       <header className="sticky top-0 z-20 border-b border-border bg-surface">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-6 px-4">
-          <Link href="/catalog" className="text-lg font-semibold tracking-tight text-foreground no-underline">
-            Aurora
+          <Link href="/catalog" className="text-foreground no-underline hover:no-underline">
+            <BrandMark size="sm" />
           </Link>
           <AgentTopNav cartCount={cartCount} />
           <div className="ml-auto flex items-center gap-1">

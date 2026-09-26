@@ -66,7 +66,7 @@ const DashboardPage = async (): Promise<React.ReactNode> => {
           <span className="flex items-center gap-2">
             Notifikasi
             {unreadCount > 0 && (
-              <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-primary-foreground tabular-nums">
+              <span className="rounded-full bg-primary px-2 py-0.5 font-sans text-xs font-semibold tracking-normal text-primary-foreground tabular-nums">
                 {unreadCount} belum dibaca
               </span>
             )}

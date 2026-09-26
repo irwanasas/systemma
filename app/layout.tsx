@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "@fontsource-variable/inter";
+import "@fontsource-variable/fraunces/opsz.css";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme/theme-provider";
 import { Toaster } from "@/components/ui/toaster";

@@ -1,7 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE, sessionCookieOptions } from "@/lib/auth/cookie";
 
+const PUBLIC_PATHS = new Set(["/icon.svg"]);
+
 export const proxy = (request: NextRequest): NextResponse => {
+  if (PUBLIC_PATHS.has(request.nextUrl.pathname)) return NextResponse.next();
   const token = request.cookies.get(SESSION_COOKIE)?.value;
   if (!token) return NextResponse.redirect(new URL("/login", request.url));
   const response = NextResponse.next();

@@ -128,16 +128,17 @@
   --color-danger-soft: var(--danger-soft);
   --color-info: var(--info);
   --color-info-soft: var(--info-soft);
-  --color-sidebar: var(--surface);
-  --color-sidebar-foreground: var(--text);
+  --color-sidebar: var(--brand);
+  --color-sidebar-foreground: var(--brand-foreground);
   --color-sidebar-primary: var(--primary);
   --color-sidebar-primary-foreground: var(--primary-foreground);
-  --color-sidebar-accent: var(--primary-soft);
-  --color-sidebar-accent-foreground: var(--primary-strong);
-  --color-sidebar-border: var(--border);
-  --color-sidebar-ring: var(--text);
+  --color-sidebar-accent: var(--brand-accent);
+  --color-sidebar-accent-foreground: var(--brand-foreground);
+  --color-sidebar-border: var(--brand-border);
+  --color-sidebar-ring: var(--ochre);
 
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Fraunces Variable", Georgia, "Times New Roman", serif;
 
   --text-xs: 0.694rem;
   --text-xs--line-height: 1.4;
@@ -230,6 +231,18 @@
     letter-spacing: -0.015em;
     hyphens: none;
     text-wrap: balance;
+  }
+
+  h1,
+  h2 {
+    font-family: var(--font-heading);
+    font-optical-sizing: auto;
+    letter-spacing: -0.02em;
+  }
+
+  [data-brand] :focus-visible,
+  [data-sidebar="sidebar"] :focus-visible {
+    outline-color: var(--ochre);
   }
 
   h1 {

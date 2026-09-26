@@ -14,7 +14,7 @@ export const CatalogCard = ({ product }: { product: CatalogListItem }): React.Re
   return (
     <article className="group relative flex h-full flex-col overflow-hidden rounded-xl border border-border bg-surface transition-colors hover:border-border-strong focus-within:ring-[3px] focus-within:ring-ring/50">
       <div aria-hidden="true" className="relative flex h-24 items-end sm:h-28 justify-between bg-primary-soft px-4 pb-3">
-        <span className="absolute top-2 right-4 text-5xl leading-none font-semibold text-primary/25 select-none">
+        <span className="absolute top-2 right-4 font-heading text-5xl leading-none font-semibold text-primary/25 select-none">
           {name.charAt(0).toUpperCase()}
         </span>
         <span className="flex items-center gap-1.5">
