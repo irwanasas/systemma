@@ -3,16 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-import type { z } from "zod";
 import { generateInitialPassword, hashPassword, verifyPassword } from "@/lib/auth/password";
 import { getClientIp, isLoginRateLimited, recordLoginAttempt } from "@/lib/auth/rate-limit";
 import { homePathFor, requireRole, requireUser } from "@/lib/auth/require-role";
 import { createSession, deleteUserSessions, destroySession } from "@/lib/auth/session";
 import { getAdminClient } from "@/lib/supabase/admin";
 import { changePasswordSchema, createAgentSchema, loginSchema, userIdSchema } from "@/features/auth/schemas";
-import type { FormState } from "@/features/auth/types";
-
-const firstIssue = (error: z.ZodError): string => error.issues[0]?.message ?? "Data yang diisi belum benar.";
+import { DB_UNIQUE_VIOLATION, firstIssue, type FormState } from "@/lib/errors";
 
 export const login = async (_state: FormState, formData: FormData): Promise<FormState> => {
   const parsed = loginSchema.safeParse(Object.fromEntries(formData));
@@ -89,7 +86,7 @@ export const createAgent = async (_state: FormState, formData: FormData): Promis
     p_business_name: businessName ?? undefined,
     p_city: city ?? undefined,
   });
-  if (error?.code === "23505") return { error: "Username atau kode agen sudah dipakai. Gunakan yang lain." };
+  if (error?.code === DB_UNIQUE_VIOLATION) return { error: "Username atau kode agen sudah dipakai. Gunakan yang lain." };
   if (error) throw error;
 
   revalidatePath("/agents");

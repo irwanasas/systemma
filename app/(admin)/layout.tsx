@@ -3,6 +3,8 @@ import { requireRole } from "@/lib/auth/require-role";
 
 const adminLinks = [
   { href: "/dashboard", label: "Dasbor" },
+  { href: "/products", label: "Produk" },
+  { href: "/po-batches", label: "Batch PO" },
   { href: "/agents", label: "Agen" },
   { href: "/change-password", label: "Ganti password" },
 ];

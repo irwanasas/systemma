@@ -23,6 +23,8 @@ const globalSetup = async (): Promise<void> => {
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
 
   await supabase.from("login_attempts").delete().like("username", "e2e-%");
+  const { error: productCleanupError } = await supabase.from("products").delete().like("slug", "e2e-%");
+  if (productCleanupError) throw productCleanupError;
   const { error: cleanupError } = await supabase.from("users").delete().like("username", "e2e-%");
   if (cleanupError) throw cleanupError;
 

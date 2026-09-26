@@ -10,8 +10,3 @@ export type CurrentUser = {
   mustChangePassword: boolean;
   sessionId: string;
 };
-
-export type FormState = {
-  error?: string;
-  message?: string;
-};

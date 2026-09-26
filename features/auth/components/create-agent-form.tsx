@@ -2,7 +2,7 @@
 
 import { useActionState } from "react";
 import { createAgent } from "@/features/auth/server/actions";
-import type { FormState } from "@/features/auth/types";
+import type { FormState } from "@/lib/errors";
 
 const initialState: FormState = {};
 
