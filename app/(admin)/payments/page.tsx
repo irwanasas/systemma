@@ -1,5 +1,8 @@
 import Link from "next/link";
+import { CheckCircle, WarningCircle } from "@phosphor-icons/react/ssr";
 import { ActionForm } from "@/components/ui/action-form";
+import { DateTime } from "@/components/ui/date-time";
+import { EmptyState } from "@/components/ui/empty-state";
 import { reviewDp } from "@/features/payments/server/actions";
 import { getPaymentReview, listPendingPayments } from "@/features/payments/server/queries";
 import { requireRole } from "@/lib/auth/require-role";
@@ -26,9 +29,9 @@ const PaymentsPage = async ({ searchParams }: PageProps<"/payments">): Promise<R
       <section aria-labelledby="queue-heading" className="flex flex-col gap-3">
         <h2 id="queue-heading">Antrean ({pending.length})</h2>
         {pending.length === 0 ? (
-          <p>Tidak ada bukti DP yang menunggu dicek.</p>
+          <EmptyState icon={CheckCircle} title="Antrean kosong" description="Tidak ada bukti DP yang menunggu dicek." />
         ) : (
-          <ul className="flex list-none flex-col gap-1 p-0">
+          <ul className="flex flex-col gap-1.5">
             {pending.map((payment) => {
               const isSelected = payment.id === review?.id;
               return (
@@ -37,7 +40,7 @@ const PaymentsPage = async ({ searchParams }: PageProps<"/payments">): Promise<R
                     href={`/payments?id=${payment.id}`}
                     aria-current={isSelected ? "true" : undefined}
                     className={cn(
-                      "flex flex-col rounded-md border px-3 py-2 text-foreground no-underline hover:bg-muted",
+                      "flex flex-col gap-0.5 rounded-lg border px-3 py-2.5 text-foreground no-underline transition-colors duration-150 hover:bg-muted hover:no-underline",
                       isSelected ? "border-primary bg-primary-soft" : "border-border bg-surface",
                     )}
                   >
@@ -45,8 +48,9 @@ const PaymentsPage = async ({ searchParams }: PageProps<"/payments">): Promise<R
                     <span className="text-sm">
                       {payment.agentName} ({payment.agentCode})
                     </span>
-                    <span className="text-sm text-muted-foreground tabular-nums">
-                      {formatRupiah(payment.amount)} · {formatDateTime(payment.createdAt)}
+                    <span className="flex justify-between gap-2 text-sm text-muted-foreground">
+                      <span className="tabular-nums">{formatRupiah(payment.amount)}</span>
+                      <DateTime value={payment.createdAt} />
                     </span>
                   </Link>
                 </li>
@@ -57,9 +61,9 @@ const PaymentsPage = async ({ searchParams }: PageProps<"/payments">): Promise<R
       </section>
 
       {review && (
-        <section aria-labelledby="review-heading" className="flex flex-col gap-4 rounded-lg border border-border bg-surface p-4">
+        <section aria-labelledby="review-heading" className="flex flex-col gap-4 rounded-xl border border-border bg-surface p-4 sm:p-5">
           <h2 id="review-heading">Periksa {review.orderNumber}</h2>
-          <dl>
+          <dl className="text-ui">
             <dt>Agen</dt>
             <dd>
               {review.agentName} ({review.agentCode}){review.agentCity && ` · ${review.agentCity}`}
@@ -74,7 +78,12 @@ const PaymentsPage = async ({ searchParams }: PageProps<"/payments">): Promise<R
             <dt>Nominal menurut agen</dt>
             <dd>
               {formatRupiah(review.amount)}
-              {review.amount !== review.expectedAmount && <strong> — berbeda dari DP yang harus dibayar</strong>}
+              {review.amount !== review.expectedAmount && (
+                <strong className="ml-1 inline-flex items-center gap-1 text-warning">
+                  <WarningCircle aria-hidden="true" weight="bold" />
+                  berbeda dari DP yang harus dibayar
+                </strong>
+              )}
             </dd>
             <dt>Dikirim</dt>
             <dd>{formatDateTime(review.createdAt)}</dd>
@@ -94,7 +103,7 @@ const PaymentsPage = async ({ searchParams }: PageProps<"/payments">): Promise<R
           ) : (
             <p role="alert">File bukti tidak bisa dibuka. Minta agen mengunggah ulang dengan menolak bukti ini.</p>
           )}
-          <p>Cocokkan nominal dan nama pengirim dengan mutasi rekening sebelum menyetujui.</p>
+          <p className="text-ui text-muted-foreground">Cocokkan nominal dan nama pengirim dengan mutasi rekening sebelum menyetujui.</p>
           <ActionForm
             action={reviewDp}
             submitLabel={`Setujui DP ${review.orderNumber}`}
@@ -105,7 +114,13 @@ const PaymentsPage = async ({ searchParams }: PageProps<"/payments">): Promise<R
             <input type="hidden" name="decision" value="approve" />
           </ActionForm>
           <hr className="w-full border-border" />
-          <ActionForm action={reviewDp} submitLabel={`Tolak DP ${review.orderNumber}`} tone="danger" pendingLabel="Menyimpan…">
+          <ActionForm
+            action={reviewDp}
+            submitLabel={`Tolak DP ${review.orderNumber}`}
+            tone="ghost"
+            buttonClassName="border border-danger/40 text-danger hover:bg-danger-soft hover:text-danger"
+            pendingLabel="Menyimpan…"
+          >
             <input type="hidden" name="paymentId" value={review.id} />
             <input type="hidden" name="decision" value="reject" />
             <div>

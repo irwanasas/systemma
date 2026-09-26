@@ -285,7 +285,11 @@
   table {
     width: 100%;
     border-collapse: collapse;
-    font-variant-numeric: tabular-nums lining-nums;
+  }
+
+  td.text-right,
+  th.text-right {
+    font-variant-numeric: tabular-nums;
   }
 
   th {
@@ -329,7 +333,6 @@
     display: grid;
     grid-template-columns: max-content 1fr;
     gap: 0.375rem 1.5rem;
-    font-variant-numeric: tabular-nums;
   }
 
   dt {
