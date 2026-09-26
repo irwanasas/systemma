@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireRole } from "@/lib/auth/require-role";
 import { DB_UNIQUE_VIOLATION, firstIssue, type FormState } from "@/lib/errors";
 import { getAdminClient } from "@/lib/supabase/admin";
+import { recordAudit } from "@/features/audit/server/record";
 import { batchStatusSchema, createBatchSchema } from "@/features/po-batches/schemas";
 
 const revalidateBatchPages = (productId: string): void => {
@@ -45,7 +46,7 @@ export const createBatch = async (_state: FormState, formData: FormData): Promis
 };
 
 export const setBatchStatus = async (_state: FormState, formData: FormData): Promise<FormState> => {
-  await requireRole("admin");
+  const admin = await requireRole("admin");
   const parsed = batchStatusSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: "Batch tidak ditemukan." };
   const { id, status } = parsed.data;
@@ -61,6 +62,7 @@ export const setBatchStatus = async (_state: FormState, formData: FormData): Pro
   }
   if (error) throw error;
   if (!data) return { error: "Batch tidak ditemukan." };
+  await recordAudit({ actorId: admin.id, action: "set_batch_status", entity: "po_batch", entityId: id, after: { status } });
 
   revalidateBatchPages(data.product_id);
   return {};

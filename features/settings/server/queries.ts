@@ -30,3 +30,15 @@ export const getSettings = async (): Promise<AppSettings> => {
   if (error) throw error;
   return Object.fromEntries(data.map(({ key, value }) => [key, value])) as AppSettings;
 };
+
+export type AdminOption = {
+  id: string;
+  fullName: string;
+  isActive: boolean;
+};
+
+export const listAdmins = async (): Promise<AdminOption[]> => {
+  const { data, error } = await getAdminClient().from("users").select("id, full_name, is_active").eq("role", "admin").order("full_name");
+  if (error) throw error;
+  return data.map(({ id, full_name, is_active }) => ({ id, fullName: full_name, isActive: is_active }));
+};

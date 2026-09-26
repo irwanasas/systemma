@@ -50,3 +50,11 @@
 - Admin: order list with status filter, order detail with next-step buttons and settlement, DP review queue (one at a time, proof preview, expected vs submitted amount).
 - `/orders` moved to a shared route group (ADR 0005).
 - Tests: pgTAP full status graph (all 100 status pairs, forbidden transitions, idempotency, expiry, deadline), unit (proof file signatures), e2e (checkout → reject → re-upload → approve → production → settlement → shipped → completed; disguised file rejected).
+
+## F5 — Back office
+
+- Table: announcements.
+- Admin dashboard: work counts (proofs to check, awaiting settlement, in production, awaiting DP) and notifications with mark-all-read; unread count in the header.
+- Announcements (admin write/delete, agents read), settings page (bank accounts, DP %, DP window, default ETA, custom limits, checkout and terms texts, invoice header, notification recipients), audit log with filter and paging.
+- Audit rows for sensitive admin actions.
+- Tests: e2e (settings validation → bank account shown to agent, announcement lifecycle, order notification with agent, mark read, audit entry, agent blocked from admin pages).

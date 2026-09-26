@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { requireRole } from "@/lib/auth/require-role";
 import { DB_FOREIGN_KEY_VIOLATION, DB_UNIQUE_VIOLATION, firstIssue, type FormState } from "@/lib/errors";
 import { getAdminClient } from "@/lib/supabase/admin";
+import { recordAudit } from "@/features/audit/server/record";
 import { colorSchema, idSchema, productSchema, sizePricesSchema } from "@/features/catalog/schemas";
 import { SIZE_CODES } from "@/features/catalog/types";
 
@@ -43,7 +44,7 @@ export const createProduct = async (_state: FormState, formData: FormData): Prom
 };
 
 export const updateProduct = async (_state: FormState, formData: FormData): Promise<FormState> => {
-  await requireRole("admin");
+  const admin = await requireRole("admin");
   const parsedId = idSchema.safeParse(Object.fromEntries(formData));
   if (!parsedId.success) return { error: "Produk tidak ditemukan." };
   const result = toProductRow(formData);
@@ -52,13 +53,14 @@ export const updateProduct = async (_state: FormState, formData: FormData): Prom
   const { error } = await getAdminClient().from("products").update(result.row).eq("id", parsedId.data.id);
   if (error?.code === DB_UNIQUE_VIOLATION) return { error: DUPLICATE_SLUG_MESSAGE };
   if (error) throw error;
+  await recordAudit({ actorId: admin.id, action: "update_product", entity: "product", entityId: parsedId.data.id, after: result.row });
 
   revalidatePath(productPath(parsedId.data.id));
   return { message: "Data produk disimpan." };
 };
 
 export const saveSizePrices = async (_state: FormState, formData: FormData): Promise<FormState> => {
-  await requireRole("admin");
+  const admin = await requireRole("admin");
   const parsedId = idSchema.safeParse(Object.fromEntries(formData));
   if (!parsedId.success) return { error: "Produk tidak ditemukan." };
   const parsed = sizePricesSchema.safeParse(Object.fromEntries(formData));
@@ -85,6 +87,7 @@ export const saveSizePrices = async (_state: FormState, formData: FormData): Pro
     if (error) throw error;
   }
 
+  await recordAudit({ actorId: admin.id, action: "update_size_prices", entity: "product", entityId: productId, after: parsed.data });
   revalidatePath(productPath(productId));
   return { message: "Harga per ukuran disimpan." };
 };
@@ -134,7 +137,7 @@ export const deleteColor = async (_state: FormState, formData: FormData): Promis
 };
 
 export const deleteProduct = async (_state: FormState, formData: FormData): Promise<FormState> => {
-  await requireRole("admin");
+  const admin = await requireRole("admin");
   const parsed = idSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: "Produk tidak ditemukan." };
   const { id: productId } = parsed.data;
@@ -144,10 +147,12 @@ export const deleteProduct = async (_state: FormState, formData: FormData): Prom
   if (error?.code === DB_FOREIGN_KEY_VIOLATION) {
     const { error: archiveError } = await supabase.from("products").update({ status: "archived" }).eq("id", productId);
     if (archiveError) throw archiveError;
+    await recordAudit({ actorId: admin.id, action: "archive_product", entity: "product", entityId: productId });
     revalidatePath(productPath(productId));
     return { message: "Produk ini sudah pernah dipesan, jadi diarsipkan (tidak dihapus). Agen tidak bisa memesannya lagi." };
   }
   if (error) throw error;
+  await recordAudit({ actorId: admin.id, action: "delete_product", entity: "product", entityId: productId });
 
   revalidatePath("/products");
   redirect("/products");

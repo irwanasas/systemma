@@ -117,6 +117,7 @@ const CartPage = async (): Promise<React.ReactNode> => {
         <p>
           <strong>{settings.checkout_confirmation_text}</strong>
         </p>
+        {settings.order_terms_text && <p>{settings.order_terms_text}</p>}
         <p>
           Bayar DP {formatRupiah(cart.dpAmount)} paling lambat {formatDateTime(dpDeadline)} ({settings.dp_window_hours} jam
           setelah checkout) dan unggah bukti transfer. Tanpa bukti, pesanan otomatis kedaluwarsa.

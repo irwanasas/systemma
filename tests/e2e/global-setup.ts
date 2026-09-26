@@ -18,6 +18,7 @@ const testUsers: TestUser[] = [
   { username: "e2e-buyer", role: "agent", mustChangePassword: false },
   { username: "e2e-canceller", role: "agent", mustChangePassword: false },
   { username: "e2e-payer", role: "agent", mustChangePassword: false },
+  { username: "e2e-notify", role: "agent", mustChangePassword: false },
 ];
 
 const E2E_USERS = "(select id from users where username like 'e2e-%')";
@@ -26,6 +27,8 @@ const cleanupSql = `
   delete from orders where agent_id in ${E2E_USERS};
   delete from carts where agent_id in ${E2E_USERS};
   delete from audit_logs where actor_id in ${E2E_USERS};
+  delete from announcements where author_id in ${E2E_USERS};
+  update app_settings set value = '[]' where key in ('bank_accounts', 'notification_recipients');
   delete from products where slug like 'e2e-%';
   delete from login_attempts where username like 'e2e-%';
   delete from users where username like 'e2e-%';

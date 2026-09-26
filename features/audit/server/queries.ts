@@ -1,0 +1,43 @@
+import "server-only";
+import type { Json } from "@/lib/supabase/database.types";
+import { getAdminClient } from "@/lib/supabase/admin";
+
+export type AuditLogEntry = {
+  id: string;
+  actorName: string | null;
+  action: string;
+  entity: string;
+  entityId: string | null;
+  before: Json | null;
+  after: Json | null;
+  createdAt: string;
+};
+
+export const AUDIT_PAGE_SIZE = 100;
+
+export const listAuditLogs = async (entity: string | null, page: number): Promise<AuditLogEntry[]> => {
+  const from = page * AUDIT_PAGE_SIZE;
+  const query = getAdminClient()
+    .from("audit_logs")
+    .select("id, action, entity, entity_id, before, after, created_at, users(full_name)")
+    .order("created_at", { ascending: false })
+    .range(from, from + AUDIT_PAGE_SIZE - 1);
+  const { data, error } = await (entity ? query.eq("entity", entity) : query);
+  if (error) throw error;
+  return data.map((row) => ({
+    id: row.id,
+    actorName: row.users?.full_name ?? null,
+    action: row.action,
+    entity: row.entity,
+    entityId: row.entity_id,
+    before: row.before,
+    after: row.after,
+    createdAt: row.created_at,
+  }));
+};
+
+export const listAuditEntities = async (): Promise<string[]> => {
+  const { data, error } = await getAdminClient().from("audit_logs").select("entity").limit(1000);
+  if (error) throw error;
+  return [...new Set(data.map(({ entity }) => entity))].sort();
+};

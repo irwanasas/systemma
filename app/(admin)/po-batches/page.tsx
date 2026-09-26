@@ -3,6 +3,7 @@ import { ActionForm } from "@/components/ui/action-form";
 import { batchStatusLabels, type BatchStatus } from "@/features/catalog/types";
 import { createBatch, setBatchStatus } from "@/features/po-batches/server/actions";
 import { listBatches, listProductOptions } from "@/features/po-batches/server/queries";
+import { getSettings } from "@/features/settings/server/queries";
 import { requireRole } from "@/lib/auth/require-role";
 import { formatDateTime } from "@/lib/dates";
 
@@ -14,7 +15,7 @@ const nextStatuses: Record<BatchStatus, { status: BatchStatus; label: string }[]
 
 const PoBatchesPage = async (): Promise<React.ReactNode> => {
   await requireRole("admin");
-  const [batches, products] = await Promise.all([listBatches(), listProductOptions()]);
+  const [batches, products, settings] = await Promise.all([listBatches(), listProductOptions(), getSettings()]);
   return (
     <main>
       <h1>Batch PO</h1>
@@ -94,7 +95,7 @@ const PoBatchesPage = async (): Promise<React.ReactNode> => {
           </div>
           <div>
             <label htmlFor="etaDays">Estimasi selesai (hari setelah DP disetujui)</label>
-            <input id="etaDays" name="etaDays" type="number" min={1} defaultValue={40} required />
+            <input id="etaDays" name="etaDays" type="number" min={1} defaultValue={settings.eta_days_default} required />
           </div>
         </ActionForm>
       </section>

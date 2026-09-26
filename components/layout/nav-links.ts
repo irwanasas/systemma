@@ -10,6 +10,7 @@ export const navLinksByRole: Record<AppRole, NavLink[]> = {
     { href: "/catalog", label: "Katalog" },
     { href: "/cart", label: "Keranjang" },
     { href: "/orders", label: "Pesanan" },
+    { href: "/announcements", label: "Pengumuman" },
     { href: "/change-password", label: "Ganti password" },
   ],
   admin: [
@@ -19,6 +20,9 @@ export const navLinksByRole: Record<AppRole, NavLink[]> = {
     { href: "/products", label: "Produk" },
     { href: "/po-batches", label: "Batch PO" },
     { href: "/agents", label: "Agen" },
+    { href: "/announcements", label: "Pengumuman" },
+    { href: "/settings", label: "Pengaturan" },
+    { href: "/audit-log", label: "Log audit" },
     { href: "/change-password", label: "Ganti password" },
   ],
 };

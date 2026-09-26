@@ -8,6 +8,7 @@ import { getClientIp, isLoginRateLimited, recordLoginAttempt } from "@/lib/auth/
 import { homePathFor, requireRole, requireUser } from "@/lib/auth/require-role";
 import { createSession, deleteUserSessions, destroySession } from "@/lib/auth/session";
 import { getAdminClient } from "@/lib/supabase/admin";
+import { recordAudit } from "@/features/audit/server/record";
 import { changePasswordSchema, createAgentSchema, loginSchema, userIdSchema } from "@/features/auth/schemas";
 import { DB_UNIQUE_VIOLATION, firstIssue, type FormState } from "@/lib/errors";
 
@@ -71,13 +72,13 @@ export const changePassword = async (_state: FormState, formData: FormData): Pro
 };
 
 export const createAgent = async (_state: FormState, formData: FormData): Promise<FormState> => {
-  await requireRole("admin");
+  const admin = await requireRole("admin");
   const parsed = createAgentSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: firstIssue(parsed.error) };
   const { username, fullName, code, phone, businessName, city } = parsed.data;
 
   const initialPassword = generateInitialPassword();
-  const { error } = await getAdminClient().rpc("create_agent", {
+  const { data: agentId, error } = await getAdminClient().rpc("create_agent", {
     p_username: username,
     p_password_hash: await hashPassword(initialPassword),
     p_full_name: fullName,
@@ -88,6 +89,7 @@ export const createAgent = async (_state: FormState, formData: FormData): Promis
   });
   if (error?.code === DB_UNIQUE_VIOLATION) return { error: "Username atau kode agen sudah dipakai. Gunakan yang lain." };
   if (error) throw error;
+  await recordAudit({ actorId: admin.id, action: "create_agent", entity: "user", entityId: agentId, after: { username, fullName, code } });
 
   revalidatePath("/agents");
   return {
@@ -96,7 +98,7 @@ export const createAgent = async (_state: FormState, formData: FormData): Promis
 };
 
 export const deactivateAgent = async (_state: FormState, formData: FormData): Promise<FormState> => {
-  await requireRole("admin");
+  const admin = await requireRole("admin");
   const parsed = userIdSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: "Agen tidak ditemukan." };
   const { userId } = parsed.data;
@@ -104,12 +106,13 @@ export const deactivateAgent = async (_state: FormState, formData: FormData): Pr
   const { error } = await getAdminClient().from("users").update({ is_active: false }).eq("id", userId).eq("role", "agent");
   if (error) throw error;
   await deleteUserSessions(userId);
+  await recordAudit({ actorId: admin.id, action: "deactivate_agent", entity: "user", entityId: userId, after: { is_active: false } });
   revalidatePath("/agents");
   return {};
 };
 
 export const resetAgentPassword = async (_state: FormState, formData: FormData): Promise<FormState> => {
-  await requireRole("admin");
+  const admin = await requireRole("admin");
   const parsed = userIdSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: "Agen tidak ditemukan." };
   const { userId } = parsed.data;
@@ -126,6 +129,7 @@ export const resetAgentPassword = async (_state: FormState, formData: FormData):
   if (!data) return { error: "Agen tidak ditemukan." };
 
   await deleteUserSessions(userId);
+  await recordAudit({ actorId: admin.id, action: "reset_agent_password", entity: "user", entityId: userId });
   return {
     message: `Password baru untuk ${data.username}: ${newPassword} — catat sekarang, password ini tidak akan ditampilkan lagi.`,
   };

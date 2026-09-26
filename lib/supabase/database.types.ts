@@ -42,6 +42,25 @@ isOneToOne: true
       referencedColumns: ["id"]
     }
                   ]
+                },"announcements": {
+                  Row: {
+                    "author_id": string,"body": string,"id": string,"published_at": string,"title": string
+                  }
+                  Insert: {
+                    "author_id": string,"body": string,"id"?: string,"published_at"?: string,"title": string
+                  }
+                  Update: {
+                    "author_id"?: string,"body"?: string,"id"?: string,"published_at"?: string,"title"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "announcements_author_id_fkey"
+      columns: ["author_id"]
+isOneToOne: false
+      referencedRelation: "users"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"app_settings": {
                   Row: {
                     "key": string,"value": NonNullable<Json>
