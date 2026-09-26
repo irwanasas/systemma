@@ -1,0 +1,54 @@
+{
+  "extraKnownMarketplaces": {
+    "bencium-marketplace": {
+      "source": {
+        "source": "github",
+        "repo": "bencium/bencium-marketplace"
+      }
+    }
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/skills/lean-dev/hooks/efficiency_core.py"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Read|Edit|Write|MultiEdit|NotebookEdit|Bash|Grep|Glob",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR\"/.claude/skills/lean-dev/hooks/trajectory_guard.py"
+          }
+        ]
+      }
+    ]
+  },
+  "enabledPlugins": {
+    "bencium-controlled-ux-designer@bencium-marketplace": true,
+    "bencium-innovative-ux-designer@bencium-marketplace": true,
+    "bencium-impact-designer@bencium-marketplace": true,
+    "design-audit@bencium-marketplace": true,
+    "typography@bencium-marketplace": true,
+    "relationship-design@bencium-marketplace": true,
+    "adaptive-communication@bencium-marketplace": true,
+    "negentropy-lens@bencium-marketplace": true,
+    "bencium-aeo@bencium-marketplace": true,
+    "bencium-code-conventions@bencium-marketplace": true,
+    "renaissance-architecture@bencium-marketplace": true,
+    "human-architect-mindset@bencium-marketplace": true,
+    "vanity-engineering-review@bencium-marketplace": true,
+    "insurgent-campaign@bencium-marketplace": true,
+    "bencium-loop@bencium-marketplace": true,
+    "bencium-harness@bencium-marketplace": true,
+    "hungarian-humanizer@bencium-marketplace": true,
+    "eu-ai-act-reviewer@bencium-marketplace": true,
+    "emotion-statusline@bencium-marketplace": true
+  }
+}
