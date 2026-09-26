@@ -34,3 +34,10 @@
 - `lib/money.ts` (branded `Rupiah`), `lib/dates.ts` (Asia/Jakarta), `lib/errors.ts`.
 - Seed: 3 products with colors, size prices and an open B1 batch.
 - Tests: pgTAP `price_quote` (standard, color-independent, custom, custom disabled, missing price, archived), unit (money, dates), e2e (admin product → batch → agent catalog).
+
+## F3 — Cart and checkout
+
+- Tables: orders, order_items, app_settings, notifications, audit_logs, document_counters; `order_status` enum with a status-graph trigger.
+- RPCs: `cart_upsert_item`, `cart_remove_item`, `cart_clear`, `checkout_cart` (split per batch, price snapshot, idempotent, notifies admins), `cancel_order` (owner, before DP only).
+- Agent: order grid and custom-size form on the product page, cart grouped by batch with DP preview, checkout with R-06 confirmation, orders list and detail, cancel.
+- Tests: pgTAP (cart rules, split, DP rounding, snapshot, idempotency, notifications, cancel rules, K-02 grants), e2e (grid → custom → two-batch checkout → two orders; cancel; other agent gets 404).

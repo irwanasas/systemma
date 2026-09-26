@@ -3,6 +3,8 @@ import { requireRole } from "@/lib/auth/require-role";
 
 const agentLinks = [
   { href: "/catalog", label: "Katalog" },
+  { href: "/cart", label: "Keranjang" },
+  { href: "/orders", label: "Pesanan" },
   { href: "/change-password", label: "Ganti password" },
 ];
 

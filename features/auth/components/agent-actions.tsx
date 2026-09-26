@@ -1,8 +1,5 @@
-"use client";
-
-import { useActionState } from "react";
+import { ActionForm } from "@/components/ui/action-form";
 import { deactivateAgent, resetAgentPassword } from "@/features/auth/server/actions";
-import type { FormState } from "@/lib/errors";
 
 type AgentActionsProps = {
   userId: string;
@@ -10,32 +7,20 @@ type AgentActionsProps = {
   isActive: boolean;
 };
 
-const initialState: FormState = {};
-
 export const AgentActions = ({ userId, username, isActive }: AgentActionsProps): React.ReactNode => {
-  const [state, resetAction, isResetting] = useActionState(resetAgentPassword, initialState);
   if (!isActive) return <span>Nonaktif</span>;
   return (
     <>
-      <form action={resetAction}>
+      <ActionForm action={resetAgentPassword} submitLabel={`Atur ulang password ${username}`}>
         <input type="hidden" name="userId" value={userId} />
-        <button type="submit" disabled={isResetting} aria-label={`Atur ulang password ${username}`}>
-          {isResetting ? "Memproses…" : "Atur ulang password"}
-        </button>
-      </form>
-      <form
+      </ActionForm>
+      <ActionForm
         action={deactivateAgent}
-        onSubmit={(event) => {
-          if (!window.confirm(`Nonaktifkan ${username}? Agen ini tidak akan bisa masuk lagi.`)) event.preventDefault();
-        }}
+        submitLabel={`Nonaktifkan ${username}`}
+        confirmMessage={`Nonaktifkan ${username}? Agen ini tidak akan bisa masuk lagi.`}
       >
         <input type="hidden" name="userId" value={userId} />
-        <button type="submit" aria-label={`Nonaktifkan ${username}`}>
-          Nonaktifkan
-        </button>
-      </form>
-      {state.error && <p role="alert">{state.error}</p>}
-      {state.message && <p role="status">{state.message}</p>}
+      </ActionForm>
     </>
   );
 };

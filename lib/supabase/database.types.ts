@@ -42,6 +42,38 @@ isOneToOne: true
       referencedColumns: ["id"]
     }
                   ]
+                },"app_settings": {
+                  Row: {
+                    "key": string,"value": NonNullable<Json>
+                  }
+                  Insert: {
+                    "key": string,"value": NonNullable<Json>
+                  }
+                  Update: {
+                    "key"?: string,"value"?: NonNullable<Json>
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"audit_logs": {
+                  Row: {
+                    "action": string,"actor_id": string | null,"after": Json | null,"before": Json | null,"created_at": string,"entity": string,"entity_id": string | null,"id": string
+                  }
+                  Insert: {
+                    "action": string,"actor_id"?: string | null,"after"?: Json | null,"before"?: Json | null,"created_at"?: string,"entity": string,"entity_id"?: string | null,"id"?: string
+                  }
+                  Update: {
+                    "action"?: string,"actor_id"?: string | null,"after"?: Json | null,"before"?: Json | null,"created_at"?: string,"entity"?: string,"entity_id"?: string | null,"id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "audit_logs_actor_id_fkey"
+      columns: ["actor_id"]
+isOneToOne: false
+      referencedRelation: "users"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"cart_items": {
                   Row: {
                     "cart_id": string,"created_at": string,"custom_chest_cm": number | null,"custom_color_id": string | null,"custom_length_cm": number | null,"id": string,"po_batch_id": string,"product_id": string,"qty": number,"variant_id": string | null
@@ -117,6 +149,19 @@ isOneToOne: true
                   Relationships: [
                     
                   ]
+                },"document_counters": {
+                  Row: {
+                    "kind": string,"last_value": number,"year": number
+                  }
+                  Insert: {
+                    "kind": string,"last_value": number,"year": number
+                  }
+                  Update: {
+                    "kind"?: string,"last_value"?: number,"year"?: number
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"login_attempts": {
                   Row: {
                     "created_at": string,"ip": unknown,"succeeded": boolean,"username": string
@@ -129,6 +174,81 @@ isOneToOne: true
                   }
                   Relationships: [
                     
+                  ]
+                },"notifications": {
+                  Row: {
+                    "created_at": string,"id": string,"kind": string,"payload": NonNullable<Json>,"read_at": string | null,"recipient_id": string
+                  }
+                  Insert: {
+                    "created_at"?: string,"id"?: string,"kind": string,"payload": NonNullable<Json>,"read_at"?: string | null,"recipient_id": string
+                  }
+                  Update: {
+                    "created_at"?: string,"id"?: string,"kind"?: string,"payload"?: NonNullable<Json>,"read_at"?: string | null,"recipient_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "notifications_recipient_id_fkey"
+      columns: ["recipient_id"]
+isOneToOne: false
+      referencedRelation: "users"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"order_items": {
+                  Row: {
+                    "color_name": string,"custom_chest_cm": number | null,"custom_length_cm": number | null,"id": string,"line_total": number,"order_id": string,"product_id": string,"product_name": string,"qty": number,"size_code": string | null,"unit_price": number,"variant_id": string | null
+                  }
+                  Insert: {
+                    "color_name": string,"custom_chest_cm"?: number | null,"custom_length_cm"?: number | null,"id"?: string,"line_total": number,"order_id": string,"product_id": string,"product_name": string,"qty": number,"size_code"?: string | null,"unit_price": number,"variant_id"?: string | null
+                  }
+                  Update: {
+                    "color_name"?: string,"custom_chest_cm"?: number | null,"custom_length_cm"?: number | null,"id"?: string,"line_total"?: number,"order_id"?: string,"product_id"?: string,"product_name"?: string,"qty"?: number,"size_code"?: string | null,"unit_price"?: number,"variant_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "order_items_order_id_fkey"
+      columns: ["order_id"]
+isOneToOne: false
+      referencedRelation: "orders"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "order_items_product_id_fkey"
+      columns: ["product_id"]
+isOneToOne: false
+      referencedRelation: "products"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "order_items_variant_id_fkey"
+      columns: ["variant_id"]
+isOneToOne: false
+      referencedRelation: "product_variants"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"orders": {
+                  Row: {
+                    "agent_id": string,"checkout_idempotency_key": string,"created_at": string,"dp_amount": number,"dp_due_at": string,"dp_received_at": string | null,"eta_at": string | null,"id": string,"number": string,"po_batch_id": string,"settled_at": string | null,"settlement_amount": number,"shipped_at": string | null,"status": Database["public"]['Enums']["order_status"],"subtotal": number
+                  }
+                  Insert: {
+                    "agent_id": string,"checkout_idempotency_key": string,"created_at"?: string,"dp_amount": number,"dp_due_at": string,"dp_received_at"?: string | null,"eta_at"?: string | null,"id"?: string,"number": string,"po_batch_id": string,"settled_at"?: string | null,"settlement_amount": number,"shipped_at"?: string | null,"status"?: Database["public"]['Enums']["order_status"],"subtotal": number
+                  }
+                  Update: {
+                    "agent_id"?: string,"checkout_idempotency_key"?: string,"created_at"?: string,"dp_amount"?: number,"dp_due_at"?: string,"dp_received_at"?: string | null,"eta_at"?: string | null,"id"?: string,"number"?: string,"po_batch_id"?: string,"settled_at"?: string | null,"settlement_amount"?: number,"shipped_at"?: string | null,"status"?: Database["public"]['Enums']["order_status"],"subtotal"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "orders_agent_id_fkey"
+      columns: ["agent_id"]
+isOneToOne: false
+      referencedRelation: "agents"
+      referencedColumns: ["user_id"]
+    },{
+      foreignKeyName: "orders_po_batch_id_fkey"
+      columns: ["po_batch_id"]
+isOneToOne: false
+      referencedRelation: "po_batches"
+      referencedColumns: ["id"]
+    }
                   ]
                 },"po_batches": {
                   Row: {
@@ -319,20 +439,61 @@ isOneToOne: false
             [_ in never]: never
           }
           Functions: {
-            "create_agent":
+            "agent_payload":
+{ Args: { "p_agent_id": string }; Returns: Json
+                           },
+"assert_active_role":
+{ Args: { "p_actor_id": string,"p_role": Database["public"]['Enums']["app_role"] }; Returns: undefined
+                           },
+"cancel_order":
+{ Args: { "p_actor_id": string,"p_order_id": string }; Returns: undefined
+                           },
+"cart_clear":
+{ Args: { "p_actor_id": string }; Returns: undefined
+                           },
+"cart_remove_item":
+{ Args: { "p_actor_id": string,"p_cart_item_id": string }; Returns: undefined
+                           },
+"cart_upsert_item":
+{ Args: { "p_actor_id": string,"p_cart_item_id"?: string,"p_custom_chest_cm"?: number,"p_custom_color_id"?: string,"p_custom_length_cm"?: number,"p_po_batch_id": string,"p_qty": number,"p_variant_id"?: string }; Returns: string
+                           },
+"checkout_cart":
+{ Args: { "p_actor_id": string,"p_idempotency_key": string }; Returns: {
+              "order_id": string,"order_number": string
+            }[]
+                           },
+"create_agent":
 { Args: { "p_business_name"?: string,"p_city"?: string,"p_code": string,"p_full_name": string,"p_password_hash": string,"p_phone"?: string,"p_username": string }; Returns: string
+                           },
+"dp_amount_for":
+{ Args: { "p_subtotal": number }; Returns: number
+                           },
+"next_document_number":
+{ Args: { "p_prefix": string }; Returns: string
+                           },
+"notify_admins":
+{ Args: { "p_kind": string,"p_payload": Json }; Returns: undefined
+                           },
+"order_transition_allowed":
+{ Args: { "p_from": Database["public"]['Enums']["order_status"],"p_to": Database["public"]['Enums']["order_status"] }; Returns: boolean
                            },
 "price_quote":
 { Args: { "p_cart_id": string }; Returns: {
               "batch_label": string,"cart_item_id": string,"color_name": string,"custom_chest_cm": number,"custom_length_cm": number,"is_orderable": boolean,"line_total": number,"po_batch_id": string,"product_id": string,"product_name": string,"qty": number,"size_code": string,"unit_price": number,"variant_id": string
             }[]
                            },
+"setting":
+{ Args: { "p_key": string }; Returns: Json
+                           },
 "sync_product_variants":
 { Args: { "p_product_id": string }; Returns: undefined
+                           },
+"write_audit":
+{ Args: { "p_action": string,"p_actor_id": string,"p_after": Json,"p_before": Json,"p_entity": string,"p_entity_id": string }; Returns: undefined
                            }
           }
           Enums: {
-            "app_role": "admin"|"agent"
+            "app_role": "admin"|"agent","order_status": "AWAITING_DP"|"DP_UNDER_REVIEW"|"DP_RECEIVED"|"IN_PRODUCTION"|"AWAITING_SETTLEMENT"|"SETTLED"|"SHIPPED"|"COMPLETED"|"CANCELLED"|"EXPIRED"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -452,7 +613,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "app_role": ["admin", "agent"]
+            "app_role": ["admin", "agent"],"order_status": ["AWAITING_DP", "DP_UNDER_REVIEW", "DP_RECEIVED", "IN_PRODUCTION", "AWAITING_SETTLEMENT", "SETTLED", "SHIPPED", "COMPLETED", "CANCELLED", "EXPIRED"]
           }
         }
 } as const

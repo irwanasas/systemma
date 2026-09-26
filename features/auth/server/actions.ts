@@ -95,16 +95,17 @@ export const createAgent = async (_state: FormState, formData: FormData): Promis
   };
 };
 
-export const deactivateAgent = async (formData: FormData): Promise<void> => {
+export const deactivateAgent = async (_state: FormState, formData: FormData): Promise<FormState> => {
   await requireRole("admin");
   const parsed = userIdSchema.safeParse(Object.fromEntries(formData));
-  if (!parsed.success) return;
+  if (!parsed.success) return { error: "Agen tidak ditemukan." };
   const { userId } = parsed.data;
 
   const { error } = await getAdminClient().from("users").update({ is_active: false }).eq("id", userId).eq("role", "agent");
   if (error) throw error;
   await deleteUserSessions(userId);
   revalidatePath("/agents");
+  return {};
 };
 
 export const resetAgentPassword = async (_state: FormState, formData: FormData): Promise<FormState> => {

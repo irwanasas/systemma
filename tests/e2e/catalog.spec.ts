@@ -43,7 +43,7 @@ test("admin sets up a product and batch, and the agent sees it with size prices"
   const sizeS = agent.getByRole("row", { name: /^S / });
   await expect(sizeS).toContainText("200.000");
   await expect(agent.getByRole("row", { name: /^XL / })).toContainText("225.000");
-  await expect(agent.getByRole("listitem").filter({ hasText: "Hitam" })).toBeVisible();
+  await expect(agent.getByRole("rowheader", { name: "Hitam" })).toBeVisible();
 
   await adminContext.close();
   await agentContext.close();

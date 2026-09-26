@@ -22,3 +22,5 @@ export const jakartaInputToIso = (value: string): string | null => {
 
 export const isoToJakartaInput = (value: string): string =>
   new Date(new Date(value).getTime() + 7 * 60 * 60 * 1000).toISOString().slice(0, 16);
+
+export const hoursFromNow = (hours: number): Date => new Date(Date.now() + hours * 60 * 60 * 1000);

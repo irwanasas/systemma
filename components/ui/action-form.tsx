@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { startTransition, useActionState } from "react";
 import type { FormState } from "@/lib/errors";
 
 type ActionFormProps = {
@@ -22,10 +22,14 @@ export const ActionForm = ({
 }: ActionFormProps): React.ReactNode => {
   const [state, formAction, isPending] = useActionState(action, initialState);
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
-    if (confirmMessage && !window.confirm(confirmMessage)) event.preventDefault();
+    event.preventDefault();
+    if (isPending) return;
+    if (confirmMessage && !window.confirm(confirmMessage)) return;
+    const formData = new FormData(event.currentTarget);
+    startTransition(() => formAction(formData));
   };
   return (
-    <form action={formAction} onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit}>
       {children}
       {state.error && <p role="alert">{state.error}</p>}
       {state.message && <p role="status">{state.message}</p>}
