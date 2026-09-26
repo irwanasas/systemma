@@ -119,17 +119,20 @@ export type CatalogListItem = {
   closesAt: string | null;
   minPrice: Rupiah | null;
   maxPrice: Rupiah | null;
+  colors: { name: string; hex: string | null }[];
 };
 
 export const listAgentCatalog = async (): Promise<CatalogListItem[]> => {
   const { data, error } = await getAdminClient()
     .from("products")
-    .select("slug, name, categories!inner(name), size_prices(unit_price), po_batches!inner(label, closes_at, status)")
+    .select(
+      "slug, name, categories!inner(name), size_prices(unit_price), product_colors(name, hex, sort), po_batches!inner(label, closes_at, status)",
+    )
     .eq("status", "active")
     .eq("po_batches.status", "open")
     .order("name");
   if (error) throw error;
-  return data.map(({ slug, name, categories, size_prices, po_batches }) => {
+  return data.map(({ slug, name, categories, size_prices, product_colors, po_batches }) => {
     const prices = size_prices.map(({ unit_price }) => unit_price);
     const [openBatch] = po_batches;
     return {
@@ -140,6 +143,9 @@ export const listAgentCatalog = async (): Promise<CatalogListItem[]> => {
       closesAt: openBatch.closes_at,
       minPrice: prices.length ? toRupiah(Math.min(...prices)) : null,
       maxPrice: prices.length ? toRupiah(Math.max(...prices)) : null,
+      colors: [...product_colors]
+        .sort((first, second) => first.sort - second.sort || first.name.localeCompare(second.name))
+        .map(({ name: colorName, hex }) => ({ name: colorName, hex })),
     };
   });
 };
