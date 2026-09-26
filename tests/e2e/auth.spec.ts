@@ -51,7 +51,8 @@ test("deactivated agent loses the session and cannot log in again", async ({ bro
   await login(admin, "e2e-admin");
   await expectPath(admin, "/dashboard");
   await admin.goto("/agents");
-  await admin.getByRole("button", { name: "Nonaktifkan e2e-victim" }).click();
+  await admin.getByRole("button", { name: "Tindakan e2e-victim" }).click();
+  await admin.getByRole("menuitem", { name: "Nonaktifkan" }).click();
   await confirmAction(admin, "Nonaktifkan e2e-victim");
   await expect(admin.getByRole("row", { name: /e2e-victim/ }).getByRole("cell", { name: "Nonaktif", exact: true }).first()).toBeVisible();
 
@@ -88,7 +89,8 @@ test("admin creates an agent who then logs in with the initial password", async 
   await login(admin, "e2e-admin");
   await expectPath(admin, "/dashboard");
   await admin.goto("/agents");
-  const form = admin.locator("form", { has: admin.getByRole("button", { name: "Buat agen" }) });
+  await admin.getByRole("button", { name: "Tambah agen" }).click();
+  const form = admin.getByRole("dialog", { name: "Tambah agen" }).locator("form");
   await form.getByLabel("Username").fill("e2e-created");
   await form.getByLabel("Nama lengkap").fill("Agen Baru");
   await form.getByLabel("Kode agen").fill("e2e-new");

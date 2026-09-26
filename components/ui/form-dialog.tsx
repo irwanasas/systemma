@@ -49,6 +49,8 @@ const DialogForm = ({
     return result;
   }, initialState);
 
+  const isShowingResult = Boolean(state.message && !closeOnSuccess);
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
     if (isPending) return;
@@ -61,16 +63,18 @@ const DialogForm = ({
       <DialogBody className="flex flex-col gap-4">
         {children}
         {state.error && <p role="alert">{state.error}</p>}
-        {state.message && !closeOnSuccess && <p role="status">{state.message}</p>}
+        {isShowingResult && <p role="status">{state.message}</p>}
       </DialogBody>
       <DialogFooter>
         <Button type="button" variant="outline" className="min-h-[var(--control-height)] text-ui" onClick={onDone}>
-          {state.message && !closeOnSuccess ? "Selesai" : "Batal"}
+          {isShowingResult ? "Selesai" : "Batal"}
         </Button>
-        <Button type="submit" disabled={isPending} className="min-h-[var(--control-height)] text-ui font-semibold">
-          {isPending && <CircleNotch aria-hidden="true" className="animate-spin" />}
-          {isPending ? pendingLabel : submitLabel}
-        </Button>
+        {!isShowingResult && (
+          <Button type="submit" disabled={isPending} className="min-h-[var(--control-height)] text-ui font-semibold">
+            {isPending && <CircleNotch aria-hidden="true" className="animate-spin" />}
+            {isPending ? pendingLabel : submitLabel}
+          </Button>
+        )}
       </DialogFooter>
     </form>
   );
