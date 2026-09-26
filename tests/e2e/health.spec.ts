@@ -6,7 +6,7 @@ test("health endpoint responds ok", async ({ request }) => {
   expect(await response.json()).toEqual({ status: "ok" });
 });
 
-test("home page renders in Bahasa Indonesia", async ({ page }) => {
-  await page.goto("/");
+test("pages render in Bahasa Indonesia", async ({ page }) => {
+  await page.goto("/login");
   await expect(page.locator("html")).toHaveAttribute("lang", "id");
 });

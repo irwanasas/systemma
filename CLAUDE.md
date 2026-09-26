@@ -23,7 +23,7 @@ Overrides (from `docs/ARCHITECT_BLUEPRINT.md` §0.1):
 - Tailwind CSS v4, not v3.
 - Supabase is fixed; no Convex, no Neon.
 - Ignore "Mac M2", "avoid Python, try Rust", and Netlify/Fly suggestions.
-- A local Supabase database in Docker is used only to run pgTAP tests.
+- A local Supabase stack in Docker is used only for automated tests (pgTAP and e2e).
 - Keep `docs/progress.md` updated at the end of each phase.
 - No code comments, even where a skill example shows them.
 

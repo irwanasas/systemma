@@ -1,9 +1,13 @@
+import { existsSync } from "node:fs";
 import { defineConfig, devices } from "@playwright/test";
+
+if (existsSync(".env.local")) process.loadEnvFile(".env.local");
 
 const port = 3000;
 
 export default defineConfig({
   testDir: "tests/e2e",
+  globalSetup: "./tests/e2e/global-setup.ts",
   forbidOnly: Boolean(process.env.CI),
   use: { baseURL: `http://localhost:${port}` },
   projects: [
