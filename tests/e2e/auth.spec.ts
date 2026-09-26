@@ -53,7 +53,7 @@ test("deactivated agent loses the session and cannot log in again", async ({ bro
   await admin.goto("/agents");
   admin.once("dialog", (dialog) => dialog.accept());
   await admin.getByRole("button", { name: "Nonaktifkan e2e-victim" }).click();
-  await expect(admin.getByRole("row", { name: /e2e-victim/ }).getByRole("cell", { name: "Nonaktif" }).first()).toBeVisible();
+  await expect(admin.getByRole("row", { name: /e2e-victim/ }).getByRole("cell", { name: "Nonaktif", exact: true }).first()).toBeVisible();
 
   await victim.goto("/catalog");
   await expectPath(victim, "/login");
