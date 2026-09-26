@@ -42,7 +42,7 @@ const CartLineRow = ({ line }: { line: CartLine }): React.ReactNode => {
             pendingLabel="Menyimpan…"
             tone="secondary"
             className="!flex-row !flex-wrap !items-center !gap-2 pt-1"
-            buttonClassName="min-h-9 px-3"
+            buttonClassName="min-h-11 px-3"
           >
             <input type="hidden" name="cartItemId" value={line.id} />
             <input
@@ -51,7 +51,7 @@ const CartLineRow = ({ line }: { line: CartLine }): React.ReactNode => {
               min={0}
               defaultValue={line.qty}
               aria-label={`Jumlah ${line.colorName} ${sizeLabel}`}
-              className="!min-h-9 !w-20 tabular-nums"
+              className="!min-h-11 !w-20 tabular-nums"
             />
           </ActionForm>
         )}
@@ -115,7 +115,7 @@ const CartPage = async (): Promise<React.ReactNode> => {
               title={`${group.productName} · PO ${group.batchLabel}`}
               action={
                 group.editSlug && (
-                  <Button asChild variant="outline" size="sm" className="min-h-9 text-ui">
+                  <Button asChild variant="outline" size="sm" className="min-h-11 text-ui">
                     <Link
                       href={`/catalog/${group.editSlug}`}
                       aria-label={`Ubah ${group.productName}`}

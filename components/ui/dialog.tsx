@@ -73,7 +73,7 @@ export const DialogHeader = ({ className, children, onClose, ...props }: DialogH
         data-slot="dialog-close"
         aria-label="Tutup"
         onClick={onClose}
-        className="-mt-1 -mr-2 inline-flex size-10 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+        className="-mt-1.5 -mr-2.5 inline-flex size-11 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
       >
         <X aria-hidden="true" className="size-5" />
       </button>
@@ -81,7 +81,7 @@ export const DialogHeader = ({ className, children, onClose, ...props }: DialogH
       <DialogPrimitive.Close
         data-slot="dialog-close"
         aria-label="Tutup"
-        className="-mt-1 -mr-2 inline-flex size-10 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+        className="-mt-1.5 -mr-2.5 inline-flex size-11 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
       >
         <X aria-hidden="true" className="size-5" />
       </DialogPrimitive.Close>

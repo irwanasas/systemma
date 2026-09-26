@@ -78,6 +78,27 @@
 - Design audit follow-ups (notifications, timeline marker).
 - `docs/operations.md`: environment, cron jobs, first production admin, backups and restore drill, rate limits, headers, incident checklist.
 
-## UI pass (ui-ux-pro-max) — in progress
+## UI pass (ui-ux-pro-max) — done
 
 Approved plan (owner said "go" to everything proposed, 2026-09-26): shell/navigation → tokens & base components → catalog → order modal (intercepting route) → cart/checkout/order detail → admin orders & review → products (tabs) & batch PO → agents → pengumuman/pengaturan (vertical tabs) → rekap (preset chips + native dates) / log audit → 404/empty/error. Add `text-ui` 0.875rem token for admin; `sonner` re-added; shadcn sidebar/sheet/dropdown-menu/tooltip/tabs/table. Agent "Info" tab = Pengumuman + account section. Catalog cards use color-swatch fallback (no photos). Before/after screenshots: `docs/ui/before`, `docs/ui/after` (demo seed `npm run db:demo`).
+
+Done (ADR 0010), in the approved order:
+
+- Shell and navigation.
+- Dialog, confirm and base components.
+- Catalog cards.
+- Order modal.
+- Cart, order detail and order lists.
+- Dashboard and review queue.
+- Products and batch PO.
+- Agents.
+- Settings and announcements.
+- Recap and audit log.
+- Status pages and file picker.
+
+Tests at the end: typecheck and lint clean; 33 unit, 95 pgTAP and 28 e2e (axe included) all passing. After screenshots are in `docs/ui/after` (25 screens at 375 and 1440, including the order modal).
+
+Open:
+- Product photos (feature decision).
+- The iPad-width grid steppers are 28px; typing in the cell still works.
+- The admin compact density keeps 36px controls on phones.
