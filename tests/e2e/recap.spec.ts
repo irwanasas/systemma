@@ -28,6 +28,7 @@ test("recap page and XLSX export show the same totals as the orders", async ({ p
   await page.goto("/recap");
 
   const agentSection = page.getByRole("region", { name: /e2e-recap/ });
+  await agentSection.locator("summary").click();
   const row = agentSection.getByRole("row", { name: /E2E Kedua/ });
   await expect(row).toContainText("Koko");
   await expect(row).toContainText("5");

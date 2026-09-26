@@ -58,7 +58,7 @@ test("admin settings, announcements, notifications and audit log", async ({ brow
   await expect(admin.getByRole("link", { name: /^Notifikasi, \d+ belum dibaca$/ })).toHaveCount(0);
 
   await admin.goto("/audit-log?entity=settings");
-  await expect(admin.getByRole("cell", { name: "update_settings" }).first()).toBeVisible();
+  await expect(admin.getByRole("cell", { name: "Pengaturan diubah" }).first()).toBeVisible();
 
   await admin.goto("/announcements");
   await admin.getByRole("button", { name: "Hapus pengumuman PO Lebaran dibuka" }).click();

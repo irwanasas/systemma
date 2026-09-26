@@ -13,7 +13,7 @@ export type RecapPeriod = {
   toExclusiveIso: string;
 };
 
-const jakartaToday = (): string =>
+export const jakartaToday = (): string =>
   new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
 
 const nextDay = (date: string): string => {
@@ -32,4 +32,24 @@ export const parseRecapPeriod = (from: unknown, to: unknown): RecapPeriod => {
     fromIso: new Date(`${validFrom}T00:00:00+07:00`).toISOString(),
     toExclusiveIso: new Date(`${nextDay(validTo)}T00:00:00+07:00`).toISOString(),
   };
+};
+
+export type RecapPreset = { label: string; from: string; to: string };
+
+const shiftDays = (date: string, days: number): string => {
+  const shifted = new Date(`${date}T00:00:00Z`);
+  shifted.setUTCDate(shifted.getUTCDate() + days);
+  return shifted.toISOString().slice(0, 10);
+};
+
+export const recapPresets = (today: string): RecapPreset[] => {
+  const monthStart = `${today.slice(0, 7)}-01`;
+  const lastMonthEnd = shiftDays(monthStart, -1);
+  return [
+    { label: "Bulan ini", from: monthStart, to: today },
+    { label: "Bulan lalu", from: `${lastMonthEnd.slice(0, 7)}-01`, to: lastMonthEnd },
+    { label: "7 hari terakhir", from: shiftDays(today, -6), to: today },
+    { label: "30 hari terakhir", from: shiftDays(today, -29), to: today },
+    { label: "Tahun ini", from: `${today.slice(0, 4)}-01-01`, to: today },
+  ];
 };
