@@ -42,12 +42,19 @@ const DashboardPage = async (): Promise<React.ReactNode> => {
           <p>Belum ada notifikasi.</p>
         ) : (
           <>
-            <ul>
+            <ul className="flex list-none flex-col gap-2 p-0">
               {notifications.map(({ id, kind, orderId, orderNumber, agentName, agentCode, isRead, createdAt }) => (
-                <li key={id}>
-                  {!isRead && <strong>Baru: </strong>}
-                  {notificationLabels[kind]} · {agentName} ({agentCode}) ·{" "}
-                  {orderId ? <Link href={`/orders/${orderId}`}>{orderNumber}</Link> : orderNumber} · {formatDateTime(createdAt)}
+                <li
+                  key={id}
+                  className={isRead ? "rounded-md border border-border bg-surface px-3 py-2" : "rounded-md border-2 border-primary bg-surface px-3 py-2"}
+                >
+                  <span className="block">
+                    {!isRead && <strong>Baru · </strong>}
+                    <span className="font-semibold">{notificationLabels[kind]}</span> · {agentName} ({agentCode})
+                  </span>
+                  <span className="block text-sm text-muted-foreground">
+                    {orderId ? <Link href={`/orders/${orderId}`}>{orderNumber}</Link> : orderNumber} · {formatDateTime(createdAt)}
+                  </span>
                 </li>
               ))}
             </ul>

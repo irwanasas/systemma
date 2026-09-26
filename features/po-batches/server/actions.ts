@@ -14,7 +14,7 @@ const revalidateBatchPages = (productId: string): void => {
 };
 
 export const createBatch = async (_state: FormState, formData: FormData): Promise<FormState> => {
-  await requireRole("admin");
+  const admin = await requireRole("admin");
   const parsed = createBatchSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: firstIssue(parsed.error) };
   const { productId, label, opensAt, closesAt, etaDays } = parsed.data;
@@ -30,16 +30,17 @@ export const createBatch = async (_state: FormState, formData: FormData): Promis
   if (latestError) throw latestError;
   const batchNo = (latest?.batch_no ?? 0) + 1;
 
-  const { error } = await supabase.from("po_batches").insert({
+  const { data: created, error } = await supabase.from("po_batches").insert({
     product_id: productId,
     batch_no: batchNo,
     label: label || `B${batchNo}`,
     opens_at: opensAt,
     closes_at: closesAt,
     eta_days: etaDays,
-  });
+  }).select("id").single();
   if (error?.code === DB_UNIQUE_VIOLATION) return { error: "Batch baru bentrok dengan batch lain. Silakan coba lagi." };
   if (error) throw error;
+  await recordAudit({ actorId: admin.id, action: "create_batch", entity: "po_batch", entityId: created.id, after: { productId, batchNo, etaDays } });
 
   revalidateBatchPages(productId);
   return { message: `Batch ${label || `B${batchNo}`} dibuat dengan status terjadwal.` };

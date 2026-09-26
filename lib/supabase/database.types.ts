@@ -202,13 +202,13 @@ isOneToOne: true
                   ]
                 },"login_attempts": {
                   Row: {
-                    "created_at": string,"ip": unknown,"succeeded": boolean,"username": string
+                    "created_at": string,"id": number,"ip": unknown,"succeeded": boolean,"username": string
                   }
                   Insert: {
-                    "created_at"?: string,"ip"?: unknown,"succeeded": boolean,"username": string
+                    "created_at"?: string,"id"?: never,"ip"?: unknown,"succeeded": boolean,"username": string
                   }
                   Update: {
-                    "created_at"?: string,"ip"?: unknown,"succeeded"?: boolean,"username"?: string
+                    "created_at"?: string,"id"?: never,"ip"?: unknown,"succeeded"?: boolean,"username"?: string
                   }
                   Relationships: [
                     
@@ -524,6 +524,9 @@ isOneToOne: false
 { Args: { "p_actor_id": string,"p_idempotency_key": string }; Returns: {
               "order_id": string,"order_number": string
             }[]
+                           },
+"cleanup_auth_records":
+{ Args: Record<PropertyKey, never>; Returns: undefined
                            },
 "create_agent":
 { Args: { "p_business_name"?: string,"p_city"?: string,"p_code": string,"p_full_name": string,"p_password_hash": string,"p_phone"?: string,"p_username": string }; Returns: string

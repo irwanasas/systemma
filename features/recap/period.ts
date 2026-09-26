@@ -1,5 +1,11 @@
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
+const isValidDate = (value: unknown): value is string => {
+  if (typeof value !== "string" || !DATE_PATTERN.test(value)) return false;
+  const date = new Date(`${value}T00:00:00Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().startsWith(value);
+};
+
 export type RecapPeriod = {
   from: string;
   to: string;
@@ -18,8 +24,8 @@ const nextDay = (date: string): string => {
 
 export const parseRecapPeriod = (from: unknown, to: unknown): RecapPeriod => {
   const today = jakartaToday();
-  const validTo = typeof to === "string" && DATE_PATTERN.test(to) ? to : today;
-  const validFrom = typeof from === "string" && DATE_PATTERN.test(from) && from <= validTo ? from : `${validTo.slice(0, 7)}-01`;
+  const validTo = isValidDate(to) ? to : today;
+  const validFrom = isValidDate(from) && from <= validTo ? from : `${validTo.slice(0, 7)}-01`;
   return {
     from: validFrom,
     to: validTo,

@@ -12,6 +12,8 @@ export const hashSessionToken = (token: string): string => createHash("sha256").
 
 const sessionExpiry = (): string => new Date(Date.now() + SESSION_MAX_AGE_SECONDS * 1000).toISOString();
 
+const ABSOLUTE_SESSION_LIFETIME_MS = 30 * 24 * 60 * 60 * 1000;
+
 export const createSession = async (userId: string, userAgent: string | null): Promise<void> => {
   const token = createSessionToken();
   const { error } = await getAdminClient()
@@ -44,13 +46,14 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   const supabase = getAdminClient();
   const { data: session, error } = await supabase
     .from("sessions")
-    .select("id, expires_at, users!inner(id, username, role, full_name, is_active, must_change_password)")
+    .select("id, expires_at, created_at, users!inner(id, username, role, full_name, is_active, must_change_password)")
     .eq("token_hash", hashSessionToken(token))
     .maybeSingle();
   if (error) throw error;
   if (!session) return null;
 
-  if (new Date(session.expires_at) <= new Date()) {
+  const isPastAbsoluteLifetime = new Date(session.created_at).getTime() + ABSOLUTE_SESSION_LIFETIME_MS <= Date.now();
+  if (new Date(session.expires_at) <= new Date() || isPastAbsoluteLifetime) {
     await supabase.from("sessions").delete().eq("id", session.id);
     return null;
   }

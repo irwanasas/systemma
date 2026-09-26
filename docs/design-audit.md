@@ -12,7 +12,19 @@ Fixed during F6:
 - Native file button unstyled → `::file-selector-button` styled like a secondary button.
 - Primary `#B5563A` is 4.28:1 as text on the background → text links use `#9C4630` (5.59:1); white on `#B5563A` is 4.82:1.
 
-Open for F8:
+## F8
+
+Fixed:
+
+- Dashboard notifications are two-line items (what and who, then order and time); unread ones have a primary border and a "Baru" label.
+- The current step in the order timeline uses a filled record marker.
+
+Not done, on purpose:
+
+- Route-level `loading.tsx` skeletons were tried and removed: with a loading boundary, Next.js starts streaming before `notFound()` runs, so missing or foreign orders answered with HTTP 200 instead of 404. Pages are server-rendered and every button shows a pending state.
+- The native file button text follows the browser language.
+
+Open after F6 (resolved above):
 
 - Notifications on the dashboard are long single lines; a two-line item (what + who, then order + time) would scan faster.
 - The current step in the order timeline uses a small dot icon; a filled, larger marker would read better.

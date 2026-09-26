@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { generateInitialPassword, hashPassword, verifyPassword } from "@/lib/auth/password";
-import { getClientIp, isLoginRateLimited, recordLoginAttempt } from "@/lib/auth/rate-limit";
+import { beginLoginAttempt, getClientIp, markLoginAttemptSucceeded } from "@/lib/auth/rate-limit";
 import { homePathFor, requireRole, requireUser } from "@/lib/auth/require-role";
 import { createSession, deleteUserSessions, destroySession } from "@/lib/auth/session";
 import { getAdminClient } from "@/lib/supabase/admin";
@@ -17,8 +17,8 @@ export const login = async (_state: FormState, formData: FormData): Promise<Form
   if (!parsed.success) return { error: firstIssue(parsed.error) };
   const { username, password } = parsed.data;
 
-  const ip = await getClientIp();
-  if (await isLoginRateLimited(username, ip)) {
+  const attempt = await beginLoginAttempt(username, await getClientIp());
+  if (attempt.isLimited) {
     return { error: "Terlalu banyak percobaan masuk yang gagal. Silakan coba lagi 15 menit lagi." };
   }
 
@@ -30,16 +30,10 @@ export const login = async (_state: FormState, formData: FormData): Promise<Form
   if (error) throw error;
 
   const isPasswordValid = await verifyPassword(password, user?.password_hash ?? null);
-  if (!user || !isPasswordValid) {
-    await recordLoginAttempt(username, ip, false);
-    return { error: "Username atau password salah." };
-  }
-  if (!user.is_active) {
-    await recordLoginAttempt(username, ip, false);
-    return { error: "Akun Anda sudah dinonaktifkan. Silakan hubungi admin Aurora." };
-  }
+  if (!user || !isPasswordValid) return { error: "Username atau password salah." };
+  if (!user.is_active) return { error: "Akun Anda sudah dinonaktifkan. Silakan hubungi admin Aurora." };
 
-  await recordLoginAttempt(username, ip, true);
+  await markLoginAttemptSucceeded(attempt.attemptId);
   const headerStore = await headers();
   await createSession(user.id, headerStore.get("user-agent"));
   redirect(user.must_change_password ? "/change-password" : homePathFor(user.role));
@@ -56,10 +50,15 @@ export const changePassword = async (_state: FormState, formData: FormData): Pro
   if (!parsed.success) return { error: firstIssue(parsed.error) };
   const { currentPassword, newPassword } = parsed.data;
 
+  const attempt = await beginLoginAttempt(user.username, await getClientIp());
+  if (attempt.isLimited) {
+    return { error: "Terlalu banyak percobaan yang gagal. Silakan coba lagi 15 menit lagi." };
+  }
   const supabase = getAdminClient();
   const { data, error } = await supabase.from("users").select("password_hash").eq("id", user.id).single();
   if (error) throw error;
   if (!(await verifyPassword(currentPassword, data.password_hash))) return { error: "Password lama salah." };
+  await markLoginAttemptSucceeded(attempt.attemptId);
 
   const { error: updateError } = await supabase
     .from("users")

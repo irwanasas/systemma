@@ -70,3 +70,10 @@
 
 - SQL function `recap_by_agent_series(from, to)`; admin recap page with period filter, per-agent tables with category totals, period totals; XLSX export.
 - Tests: pgTAP fixture (quantities and values across orders of one batch, cancelled excluded, received DP/settlement only, value equals order subtotals, period boundary), unit (summaries, period parsing), e2e (page and XLSX match a fixture order; agents blocked), axe on `/recap`.
+
+## F8 — Hardening
+
+- Security review (no High findings); fixes: throttling race and per-username cap, absolute session lifetime, security headers, append-only audit log, audit gaps, input edge cases, PDF proofs as downloads.
+- Indonesian error and not-found pages; daily auth cleanup job; client bundles scanned for secrets (none).
+- Design audit follow-ups (notifications, timeline marker).
+- `docs/operations.md`: environment, cron jobs, first production admin, backups and restore drill, rate limits, headers, incident checklist.

@@ -1,5 +1,5 @@
 begin;
-select plan(5);
+select plan(6);
 
 select is_empty(
   $$ select c.relname from pg_class c join pg_namespace n on n.oid = c.relnamespace
@@ -35,6 +35,13 @@ select is_empty(
         or has_table_privilege('service_role', t, 'update')
         or has_table_privilege('service_role', t, 'delete') $$,
   'orders, items, payments, invoices and carts are written only through RPCs'
+);
+
+select ok(
+  has_table_privilege('service_role', 'audit_logs', 'insert')
+  and not has_table_privilege('service_role', 'audit_logs', 'update')
+  and not has_table_privilege('service_role', 'audit_logs', 'delete'),
+  'the audit log is append-only for the service role'
 );
 
 select * from finish();

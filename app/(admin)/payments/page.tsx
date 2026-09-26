@@ -82,7 +82,7 @@ const PaymentsPage = async ({ searchParams }: PageProps<"/payments">): Promise<R
           {review.proofUrl ? (
             review.isPdf ? (
               <p>
-                <a href={review.proofUrl}>Buka bukti transfer (PDF)</a>
+                <a href={review.proofUrl}>Unduh bukti transfer (PDF)</a>
               </p>
             ) : (
               <img

@@ -50,3 +50,10 @@ describe("parseRecapPeriod", () => {
     expect(parseRecapPeriod("2026-10-01", "2026-09-15").from).toBe("2026-09-01");
   });
 });
+
+describe("parseRecapPeriod with impossible dates", () => {
+  it("ignores dates that match the pattern but do not exist", () => {
+    expect(() => parseRecapPeriod("2026-99-99", "2026-02-31")).not.toThrow();
+    expect(parseRecapPeriod("2026-02-01", "2026-02-31").to).not.toBe("2026-02-31");
+  });
+});

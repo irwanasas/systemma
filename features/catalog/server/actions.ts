@@ -31,13 +31,14 @@ const toProductRow = (formData: FormData) => {
 const DUPLICATE_SLUG_MESSAGE = "Slug ini sudah dipakai produk lain. Gunakan slug yang berbeda.";
 
 export const createProduct = async (_state: FormState, formData: FormData): Promise<FormState> => {
-  await requireRole("admin");
+  const admin = await requireRole("admin");
   const result = toProductRow(formData);
   if ("error" in result) return { error: result.error };
 
   const { data, error } = await getAdminClient().from("products").insert(result.row).select("id").single();
   if (error?.code === DB_UNIQUE_VIOLATION) return { error: DUPLICATE_SLUG_MESSAGE };
   if (error) throw error;
+  await recordAudit({ actorId: admin.id, action: "create_product", entity: "product", entityId: data.id, after: result.row });
 
   revalidatePath("/products");
   redirect(productPath(data.id));
@@ -93,7 +94,7 @@ export const saveSizePrices = async (_state: FormState, formData: FormData): Pro
 };
 
 export const addColor = async (_state: FormState, formData: FormData): Promise<FormState> => {
-  await requireRole("admin");
+  const admin = await requireRole("admin");
   const parsedId = idSchema.safeParse(Object.fromEntries(formData));
   if (!parsedId.success) return { error: "Produk tidak ditemukan." };
   const parsed = colorSchema.safeParse(Object.fromEntries(formData));
@@ -112,13 +113,14 @@ export const addColor = async (_state: FormState, formData: FormData): Promise<F
     .insert({ product_id: productId, name: parsed.data.name, hex: parsed.data.hex, sort: (count ?? 0) + 1 });
   if (error?.code === DB_UNIQUE_VIOLATION) return { error: "Warna dengan nama itu sudah ada di produk ini." };
   if (error) throw error;
+  await recordAudit({ actorId: admin.id, action: "add_color", entity: "product", entityId: productId, after: parsed.data });
 
   revalidatePath(productPath(productId));
   return { message: `Warna ${parsed.data.name} ditambahkan.` };
 };
 
 export const deleteColor = async (_state: FormState, formData: FormData): Promise<FormState> => {
-  await requireRole("admin");
+  const admin = await requireRole("admin");
   const parsed = idSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: "Warna tidak ditemukan." };
 
@@ -126,13 +128,16 @@ export const deleteColor = async (_state: FormState, formData: FormData): Promis
     .from("product_colors")
     .delete()
     .eq("id", parsed.data.id)
-    .select("product_id")
+    .select("product_id, name")
     .maybeSingle();
   if (error?.code === DB_FOREIGN_KEY_VIOLATION) {
     return { error: "Warna ini sudah dipakai di keranjang atau pesanan, jadi tidak bisa dihapus." };
   }
   if (error) throw error;
-  if (data) revalidatePath(productPath(data.product_id));
+  if (data) {
+    await recordAudit({ actorId: admin.id, action: "delete_color", entity: "product", entityId: data.product_id, before: { name: data.name } });
+    revalidatePath(productPath(data.product_id));
+  }
   return {};
 };
 

@@ -1,4 +1,4 @@
-import { CheckCircle, Circle, DotOutline } from "@phosphor-icons/react/ssr";
+import { CheckCircle, Circle, RecordIcon } from "@phosphor-icons/react/ssr";
 import { MAIN_STATUS_PATH, orderStatusLabels, type OrderStatus } from "@/features/orders/types";
 import { cn } from "@/lib/utils";
 
@@ -23,7 +23,7 @@ export const OrderStatusTimeline = ({ status }: { status: OrderStatus }): React.
         {MAIN_STATUS_PATH.map((step, index) => {
           const isDone = index < currentIndex;
           const isCurrent = index === currentIndex;
-          const StepIcon = isDone ? CheckCircle : isCurrent ? DotOutline : Circle;
+          const StepIcon = isDone ? CheckCircle : isCurrent ? RecordIcon : Circle;
           return (
             <li
               key={step}

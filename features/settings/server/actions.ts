@@ -30,7 +30,7 @@ const writeSettings = async (actorId: string, values: Record<string, NonNullable
 export const saveSettingsSection = async (_state: FormState, formData: FormData): Promise<FormState> => {
   const user = await requireRole("admin");
   const section = formData.get("section");
-  if (typeof section !== "string" || !(section in settingsSections)) return { error: "Bagian pengaturan tidak dikenal." };
+  if (typeof section !== "string" || !Object.hasOwn(settingsSections, section)) return { error: "Bagian pengaturan tidak dikenal." };
   const parsed = settingsSections[section as SettingsSection].safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { error: firstIssue(parsed.error) };
   await writeSettings(user.id, parsed.data as Record<string, NonNullable<Json>>);

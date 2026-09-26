@@ -8,7 +8,8 @@ export const PROOF_BUCKET = "payment-proofs";
 const SIGNED_URL_SECONDS = 300;
 
 export const createProofUrl = async (proofPath: string): Promise<string | null> => {
-  const { data, error } = await getAdminClient().storage.from(PROOF_BUCKET).createSignedUrl(proofPath, SIGNED_URL_SECONDS);
+  const options = proofPath.endsWith(".pdf") ? { download: true } : undefined;
+  const { data, error } = await getAdminClient().storage.from(PROOF_BUCKET).createSignedUrl(proofPath, SIGNED_URL_SECONDS, options);
   if (error) return null;
   return data.signedUrl;
 };
