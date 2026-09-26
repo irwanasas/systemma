@@ -1,11 +1,12 @@
 import Link from "next/link";
+import { OrderStatusBadge } from "@/features/orders/components/order-status-badge";
 import { ActionForm } from "@/components/ui/action-form";
 import { InvoiceSection } from "@/features/orders/components/invoice-section";
 import { OrderItemsTable } from "@/features/orders/components/order-items-table";
 import { OrderStatusTimeline } from "@/features/orders/components/order-status-timeline";
 import { PaymentHistory } from "@/features/orders/components/payment-history";
 import { markSettled, transitionOrder } from "@/features/orders/server/actions";
-import { orderStatusLabels, type OrderDetail, type OrderStatus } from "@/features/orders/types";
+import { type OrderDetail, type OrderStatus } from "@/features/orders/types";
 import type { Invoice, Payment } from "@/features/payments/types";
 import type { InvoiceHeader } from "@/features/settings/server/queries";
 import { formatDateTime } from "@/lib/dates";
@@ -36,7 +37,7 @@ export const AdminOrderDetail = ({ order, payments, proofUrls, invoice, invoiceH
       <h1>Pesanan {order.number}</h1>
       <dl>
         <dt>Status</dt>
-        <dd>{orderStatusLabels[order.status]}</dd>
+        <dd><OrderStatusBadge status={order.status} /></dd>
         <dt>Agen</dt>
         <dd>
           {order.agentName} ({order.agentCode}){order.agentCity && ` · ${order.agentCity}`}
@@ -87,7 +88,7 @@ export const AdminOrderDetail = ({ order, payments, proofUrls, invoice, invoiceH
       )}
 
       {order.status === "AWAITING_SETTLEMENT" && (
-        <section aria-labelledby="settlement-heading">
+        <section aria-labelledby="settlement-heading" className="rounded-lg border-2 border-primary bg-surface p-4">
           <h2 id="settlement-heading">Pelunasan</h2>
           <p>
             Cek mutasi rekening untuk pelunasan {formatRupiah(order.settlementAmount)} dari {order.agentName}. Tandai lunas
@@ -105,7 +106,7 @@ export const AdminOrderDetail = ({ order, payments, proofUrls, invoice, invoiceH
       )}
 
       {step && (
-        <section aria-labelledby="next-step-heading">
+        <section aria-labelledby="next-step-heading" className="rounded-lg border-2 border-primary bg-surface p-4">
           <h2 id="next-step-heading">Tahap berikutnya</h2>
           <ActionForm action={transitionOrder} submitLabel={step.label} pendingLabel="Menyimpan…">
             <input type="hidden" name="orderId" value={order.id} />

@@ -16,19 +16,23 @@ const DashboardPage = async (): Promise<React.ReactNode> => {
       <h1>Dasbor</h1>
       <section aria-labelledby="work-heading">
         <h2 id="work-heading">Perlu ditindaklanjuti</h2>
-        <ul>
-          <li>
-            <Link href="/payments">Bukti DP menunggu dicek: {counts.pendingProofs}</Link>
-          </li>
-          <li>
-            <Link href="/orders?status=AWAITING_SETTLEMENT">Menunggu pelunasan: {counts.awaitingSettlement}</Link>
-          </li>
-          <li>
-            <Link href="/orders?status=IN_PRODUCTION">Sedang diproduksi: {counts.inProduction}</Link>
-          </li>
-          <li>
-            <Link href="/orders?status=AWAITING_DP">Menunggu DP: {counts.awaitingDp}</Link>
-          </li>
+        <ul className="grid list-none gap-3 p-0 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            { href: "/payments", label: "Bukti DP menunggu dicek", value: counts.pendingProofs },
+            { href: "/orders?status=AWAITING_SETTLEMENT", label: "Menunggu pelunasan", value: counts.awaitingSettlement },
+            { href: "/orders?status=IN_PRODUCTION", label: "Sedang diproduksi", value: counts.inProduction },
+            { href: "/orders?status=AWAITING_DP", label: "Menunggu DP", value: counts.awaitingDp },
+          ].map(({ href, label, value }) => (
+            <li key={href}>
+              <Link
+                href={href}
+                className="flex flex-col gap-1 rounded-lg border border-border bg-surface p-4 text-foreground no-underline hover:border-primary"
+              >
+                <span className="text-3xl font-semibold tabular-nums">{value}</span>
+                <span className="text-sm">{label}</span>
+              </Link>
+            </li>
+          ))}
         </ul>
       </section>
 
@@ -48,7 +52,7 @@ const DashboardPage = async (): Promise<React.ReactNode> => {
               ))}
             </ul>
             {unreadCount > 0 && (
-              <ActionForm action={markAllNotificationsRead} submitLabel="Tandai semua sudah dibaca" pendingLabel="Menyimpan…" />
+              <ActionForm action={markAllNotificationsRead} submitLabel="Tandai semua sudah dibaca" tone="secondary" pendingLabel="Menyimpan…" />
             )}
           </>
         )}

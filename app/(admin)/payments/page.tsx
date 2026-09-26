@@ -3,6 +3,7 @@ import { ActionForm } from "@/components/ui/action-form";
 import { reviewDp } from "@/features/payments/server/actions";
 import { getPaymentReview, listPendingPayments } from "@/features/payments/server/queries";
 import { requireRole } from "@/lib/auth/require-role";
+import { cn } from "@/lib/utils";
 import { formatDateTime } from "@/lib/dates";
 import { formatRupiah } from "@/lib/money";
 
@@ -21,26 +22,42 @@ const PaymentsPage = async ({ searchParams }: PageProps<"/payments">): Promise<R
           DP pesanan {order} {reviewed === "approve" ? "disetujui" : "ditolak"} pada {formatDateTime(at)}.
         </p>
       )}
-      <section aria-labelledby="queue-heading">
+      <div className="grid gap-6 lg:grid-cols-[minmax(16rem,22rem)_1fr]">
+      <section aria-labelledby="queue-heading" className="flex flex-col gap-3">
         <h2 id="queue-heading">Antrean ({pending.length})</h2>
         {pending.length === 0 ? (
           <p>Tidak ada bukti DP yang menunggu dicek.</p>
         ) : (
-          <ul>
-            {pending.map((payment) => (
-              <li key={payment.id} aria-current={payment.id === review?.id ? "true" : undefined}>
-                <Link href={`/payments?id=${payment.id}`}>
-                  {payment.orderNumber} · {payment.agentName} ({payment.agentCode}) · {formatRupiah(payment.amount)} ·{" "}
-                  {formatDateTime(payment.createdAt)}
-                </Link>
-              </li>
-            ))}
+          <ul className="flex list-none flex-col gap-1 p-0">
+            {pending.map((payment) => {
+              const isSelected = payment.id === review?.id;
+              return (
+                <li key={payment.id}>
+                  <Link
+                    href={`/payments?id=${payment.id}`}
+                    aria-current={isSelected ? "true" : undefined}
+                    className={cn(
+                      "flex flex-col rounded-md border px-3 py-2 text-foreground no-underline hover:bg-muted",
+                      isSelected ? "border-primary bg-primary-soft" : "border-border bg-surface",
+                    )}
+                  >
+                    <span className="font-semibold">{payment.orderNumber}</span>
+                    <span className="text-sm">
+                      {payment.agentName} ({payment.agentCode})
+                    </span>
+                    <span className="text-sm text-muted-foreground tabular-nums">
+                      {formatRupiah(payment.amount)} · {formatDateTime(payment.createdAt)}
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>
 
       {review && (
-        <section aria-labelledby="review-heading">
+        <section aria-labelledby="review-heading" className="flex flex-col gap-4 rounded-lg border border-border bg-surface p-4">
           <h2 id="review-heading">Periksa {review.orderNumber}</h2>
           <dl>
             <dt>Agen</dt>
@@ -68,9 +85,11 @@ const PaymentsPage = async ({ searchParams }: PageProps<"/payments">): Promise<R
                 <a href={review.proofUrl}>Buka bukti transfer (PDF)</a>
               </p>
             ) : (
-              <p>
-                <img src={review.proofUrl} alt={`Bukti transfer ${review.orderNumber}`} />
-              </p>
+              <img
+                src={review.proofUrl}
+                alt={`Bukti transfer ${review.orderNumber}`}
+                className="max-h-[70vh] w-full rounded-md border border-border bg-muted object-contain"
+              />
             )
           ) : (
             <p role="alert">File bukti tidak bisa dibuka. Minta agen mengunggah ulang dengan menolak bukti ini.</p>
@@ -85,7 +104,8 @@ const PaymentsPage = async ({ searchParams }: PageProps<"/payments">): Promise<R
             <input type="hidden" name="paymentId" value={review.id} />
             <input type="hidden" name="decision" value="approve" />
           </ActionForm>
-          <ActionForm action={reviewDp} submitLabel={`Tolak DP ${review.orderNumber}`} pendingLabel="Menyimpan…">
+          <hr className="w-full border-border" />
+          <ActionForm action={reviewDp} submitLabel={`Tolak DP ${review.orderNumber}`} tone="danger" pendingLabel="Menyimpan…">
             <input type="hidden" name="paymentId" value={review.id} />
             <input type="hidden" name="decision" value="reject" />
             <div>
@@ -95,6 +115,7 @@ const PaymentsPage = async ({ searchParams }: PageProps<"/payments">): Promise<R
           </ActionForm>
         </section>
       )}
+      </div>
     </main>
   );
 };

@@ -42,7 +42,7 @@ const AnnouncementsPage = async (): Promise<React.ReactNode> => {
             {isAdmin && (
               <ActionForm
                 action={deleteAnnouncement}
-                submitLabel={`Hapus pengumuman ${title}`}
+                submitLabel={`Hapus pengumuman ${title}`} tone="danger"
                 pendingLabel="Menghapus…"
                 confirmMessage={`Hapus pengumuman “${title}”?`}
               >

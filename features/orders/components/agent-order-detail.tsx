@@ -1,11 +1,14 @@
 import Link from "next/link";
+import { OrderStatusBadge } from "@/features/orders/components/order-status-badge";
 import { ActionForm } from "@/components/ui/action-form";
+import { CopyButton } from "@/components/ui/copy-button";
+import { DpCountdown } from "@/features/orders/components/dp-countdown";
 import { InvoiceSection } from "@/features/orders/components/invoice-section";
 import { OrderItemsTable } from "@/features/orders/components/order-items-table";
 import { OrderStatusTimeline } from "@/features/orders/components/order-status-timeline";
 import { PaymentHistory } from "@/features/orders/components/payment-history";
 import { cancelOrder } from "@/features/orders/server/actions";
-import { orderStatusLabels, type OrderDetail } from "@/features/orders/types";
+import { type OrderDetail } from "@/features/orders/types";
 import { DpProofForm } from "@/features/payments/components/dp-proof-form";
 import type { Invoice, Payment } from "@/features/payments/types";
 import type { AppSettings } from "@/features/settings/server/queries";
@@ -29,7 +32,7 @@ export const AgentOrderDetail = ({ order, payments, invoice, settings }: AgentOr
       <h1>Pesanan {order.number}</h1>
       <dl>
         <dt>Status</dt>
-        <dd>{orderStatusLabels[order.status]}</dd>
+        <dd><OrderStatusBadge status={order.status} /></dd>
         <dt>Seri</dt>
         <dd>
           {order.productName} · PO {order.batchLabel}
@@ -45,18 +48,22 @@ export const AgentOrderDetail = ({ order, payments, invoice, settings }: AgentOr
       </dl>
 
       {order.status === "AWAITING_DP" && (
-        <section aria-labelledby="dp-heading">
+        <section aria-labelledby="dp-heading" className="rounded-lg border-2 border-primary bg-surface p-4">
           <h2 id="dp-heading">Bayar DP</h2>
+          <DpCountdown dueAt={order.dpDueAt} />
           <p>
             Transfer {formatRupiah(order.dpAmount)} paling lambat <strong>{formatDateTime(order.dpDueAt)}</strong>, lalu
             unggah buktinya. Tanpa bukti, pesanan otomatis kedaluwarsa.
           </p>
           {lastRejected && <p role="alert">Bukti sebelumnya ditolak: {lastRejected.rejectReason}. Silakan unggah bukti yang benar.</p>}
           {settings.bank_accounts.length > 0 ? (
-            <ul>
+            <ul className="flex list-none flex-col gap-2 p-0">
               {settings.bank_accounts.map(({ bank, number, holder }) => (
-                <li key={`${bank}-${number}`}>
-                  {bank} {number} a.n. {holder}
+                <li key={`${bank}-${number}`} className="flex flex-wrap items-center gap-3">
+                  <span>
+                    {bank} <span className="font-semibold tabular-nums">{number}</span> a.n. {holder}
+                  </span>
+                  <CopyButton value={number.replace(/\D/g, "")} label={`Salin nomor rekening ${bank}`} />
                 </li>
               ))}
             </ul>
@@ -77,12 +84,12 @@ export const AgentOrderDetail = ({ order, payments, invoice, settings }: AgentOr
       <InvoiceSection invoice={invoice} order={order} header={settings.invoice_header} />
 
       {order.status === "AWAITING_DP" && (
-        <section aria-labelledby="cancel-heading">
+        <section aria-labelledby="cancel-heading" className="rounded-lg border border-border bg-surface p-4">
           <h2 id="cancel-heading">Batalkan pesanan</h2>
           <p>Pesanan hanya bisa dibatalkan sebelum bukti DP dikirim.</p>
           <ActionForm
             action={cancelOrder}
-            submitLabel="Batalkan pesanan"
+            submitLabel="Batalkan pesanan" tone="danger"
             pendingLabel="Membatalkan…"
             confirmMessage={`Batalkan pesanan ${order.number}?`}
           >

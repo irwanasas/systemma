@@ -13,19 +13,23 @@ const CatalogPage = async (): Promise<React.ReactNode> => {
       {products.length === 0 ? (
         <p>Belum ada seri yang sedang dibuka untuk pre-order.</p>
       ) : (
-        <ul>
+        <ul className="grid list-none gap-4 p-0 sm:grid-cols-2 lg:grid-cols-3">
           {products.map(({ slug, name, categoryName, batchLabel, closesAt, minPrice, maxPrice }) => (
-            <li key={slug}>
-              <h2>
-                <Link href={`/catalog/${slug}`}>{name}</Link>
-              </h2>
-              <p>
+            <li key={slug} className="flex flex-col gap-2 rounded-lg border border-border bg-surface p-4">
+              <p className="text-sm font-medium text-muted-foreground">
                 {categoryName} · PO {batchLabel}
-                {closesAt && ` · ditutup ${formatDateTime(closesAt)}`}
               </p>
+              <h2>
+                <Link href={`/catalog/${slug}`} className="text-foreground">
+                  {name}
+                </Link>
+              </h2>
               {minPrice !== null && maxPrice !== null && (
-                <p>{minPrice === maxPrice ? formatRupiah(minPrice) : `${formatRupiah(minPrice)} – ${formatRupiah(maxPrice)}`}</p>
+                <p className="font-semibold tabular-nums">
+                  {minPrice === maxPrice ? formatRupiah(minPrice) : `${formatRupiah(minPrice)} – ${formatRupiah(maxPrice)}`}
+                </p>
               )}
+              {closesAt && <p className="text-sm text-muted-foreground">Ditutup {formatDateTime(closesAt)}</p>}
             </li>
           ))}
         </ul>

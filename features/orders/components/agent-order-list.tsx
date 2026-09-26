@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { orderStatusLabels, type OrderSummary } from "@/features/orders/types";
+import { OrderStatusBadge } from "@/features/orders/components/order-status-badge";
+import { type OrderSummary } from "@/features/orders/types";
 import { formatDateTime } from "@/lib/dates";
 import { formatRupiah } from "@/lib/money";
 
@@ -49,7 +50,7 @@ export const AgentOrderList = ({ orders, placedNumbers }: AgentOrderListProps): 
                 <td>
                   {productName} · {batchLabel}
                 </td>
-                <td>{orderStatusLabels[status]}</td>
+                <td><OrderStatusBadge status={status} /></td>
                 <td>{formatRupiah(subtotal)}</td>
                 <td>{formatRupiah(dpAmount)}</td>
                 <td>{formatDateTime(createdAt)}</td>

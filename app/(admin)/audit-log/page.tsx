@@ -16,7 +16,8 @@ const AuditLogPage = async ({ searchParams }: PageProps<"/audit-log">): Promise<
   return (
     <main>
       <h1>Log audit</h1>
-      <form method="get">
+      <form method="get" className="!flex-row flex-wrap !items-end">
+      <div className="!w-auto">
         <label htmlFor="entity">Jenis data</label>
         <select id="entity" name="entity" defaultValue={entityFilter ?? ""}>
           <option value="">Semua</option>
@@ -26,6 +27,7 @@ const AuditLogPage = async ({ searchParams }: PageProps<"/audit-log">): Promise<
             </option>
           ))}
         </select>
+        </div>
         <button type="submit">Terapkan</button>
       </form>
       {entries.length === 0 ? (

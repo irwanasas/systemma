@@ -58,3 +58,10 @@
 - Announcements (admin write/delete, agents read), settings page (bank accounts, DP %, DP window, default ETA, custom limits, checkout and terms texts, invoice header, notification recipients), audit log with filter and paging.
 - Audit rows for sensitive admin actions.
 - Tests: e2e (settings validation → bank account shown to agent, announcement lifecycle, order notification with agent, mark read, audit entry, agent blocked from admin pages).
+
+## F6 — UI
+
+- Warm Atelier tokens and Inter; base element styles; compact admin and comfortable agent density.
+- Header with active navigation and unread notifications; login and password cards.
+- Order grid (Zustand, arrow keys, phone accordion with steppers, sticky totals), custom-size disclosure with inline validation, cart cards with checkout dialog, DP countdown, copy buttons, status badges, timeline with icons, printable invoice, two-column DP review, dashboard tiles.
+- Tests: axe WCAG 2.1 AA scans of login, 5 agent pages and 8 admin pages (no violations), grid keyboard navigation, phone accordion; existing e2e updated for the dialog and disclosure. Design audit notes in `docs/design-audit.md`.

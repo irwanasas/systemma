@@ -25,8 +25,9 @@ test("order goes from checkout to completed through DP review, production, settl
   await agent.getByRole("button", { name: "Simpan ke keranjang" }).click();
   await expect(agent.getByRole("status")).toHaveText("Keranjang diperbarui.");
   await agent.goto("/cart");
-  await agent.getByLabel("Saya sudah memastikan pesanan ini benar.").check();
   await agent.getByRole("button", { name: "Checkout" }).click();
+  await agent.getByLabel("Saya sudah memastikan pesanan ini benar.").check();
+  await agent.getByRole("button", { name: "Buat pesanan" }).click();
   await expectPath(agent, "/orders");
   const orderLink = agent.getByRole("status").getByRole("link");
   const orderNumber = (await orderLink.textContent()) ?? "";
@@ -96,8 +97,9 @@ test("a non-image file disguised as a photo is rejected", async ({ page }) => {
   await page.getByRole("button", { name: "Simpan ke keranjang" }).click();
   await expect(page.getByRole("status")).toHaveText("Keranjang diperbarui.");
   await page.goto("/cart");
-  await page.getByLabel("Saya sudah memastikan pesanan ini benar.").check();
   await page.getByRole("button", { name: "Checkout" }).click();
+  await page.getByLabel("Saya sudah memastikan pesanan ini benar.").check();
+  await page.getByRole("button", { name: "Buat pesanan" }).click();
   await expectPath(page, "/orders");
   await page.getByRole("status").getByRole("link").click();
   await page.getByLabel(/Foto atau file bukti transfer/).setInputFiles({

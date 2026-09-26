@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { OrderStatusBadge } from "@/features/orders/components/order-status-badge";
 import { ORDER_STATUSES, orderStatusLabels, type OrderStatus, type OrderSummary } from "@/features/orders/types";
 import { formatDateTime } from "@/lib/dates";
 import { formatRupiah } from "@/lib/money";
@@ -11,7 +12,8 @@ type AdminOrderListProps = {
 export const AdminOrderList = ({ orders, status }: AdminOrderListProps): React.ReactNode => (
   <main>
     <h1>Pesanan</h1>
-    <form method="get">
+    <form method="get" className="!flex-row flex-wrap !items-end">
+      <div className="!w-auto">
       <label htmlFor="status">Filter status</label>
       <select id="status" name="status" defaultValue={status ?? ""}>
         <option value="">Semua status</option>
@@ -21,6 +23,7 @@ export const AdminOrderList = ({ orders, status }: AdminOrderListProps): React.R
           </option>
         ))}
       </select>
+      </div>
       <button type="submit">Terapkan</button>
     </form>
     {orders.length === 0 ? (
@@ -49,7 +52,7 @@ export const AdminOrderList = ({ orders, status }: AdminOrderListProps): React.R
               <td>
                 {productName} · {batchLabel}
               </td>
-              <td>{orderStatusLabels[orderStatus]}</td>
+              <td><OrderStatusBadge status={orderStatus} /></td>
               <td>{formatRupiah(subtotal)}</td>
               <td>{formatDateTime(createdAt)}</td>
             </tr>

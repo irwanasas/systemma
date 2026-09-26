@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatRupiah, parseRupiahInput, toRupiah } from "@/lib/money";
+import { dpAmountFor, formatRupiah, parseRupiahInput, toRupiah } from "@/lib/money";
 
 describe("money", () => {
   it("formats integer rupiah without decimals", () => {
@@ -21,5 +21,14 @@ describe("money", () => {
 
   it("refuses non-integer amounts", () => {
     expect(() => toRupiah(1.5)).toThrow();
+  });
+});
+
+describe("dpAmountFor", () => {
+  it("matches the SQL rule ceil(subtotal × percent / 100) with integers", () => {
+    expect(dpAmountFor(1100003, 25)).toBe(275001);
+    expect(dpAmountFor(800000, 25)).toBe(200000);
+    expect(dpAmountFor(1, 25)).toBe(1);
+    expect(dpAmountFor(0, 25)).toBe(0);
   });
 });

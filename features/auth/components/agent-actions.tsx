@@ -11,12 +11,12 @@ export const AgentActions = ({ userId, username, isActive }: AgentActionsProps):
   if (!isActive) return <span>Nonaktif</span>;
   return (
     <>
-      <ActionForm action={resetAgentPassword} submitLabel={`Atur ulang password ${username}`}>
+      <ActionForm action={resetAgentPassword} submitLabel={`Atur ulang password ${username}`} tone="secondary">
         <input type="hidden" name="userId" value={userId} />
       </ActionForm>
       <ActionForm
         action={deactivateAgent}
-        submitLabel={`Nonaktifkan ${username}`}
+        submitLabel={`Nonaktifkan ${username}`} tone="danger"
         confirmMessage={`Nonaktifkan ${username}? Agen ini tidak akan bisa masuk lagi.`}
       >
         <input type="hidden" name="userId" value={userId} />

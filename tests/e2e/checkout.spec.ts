@@ -12,14 +12,14 @@ test("agent fills the grid, adds a custom size, and checks out two batches as tw
   await gridForm.getByRole("button", { name: "Simpan ke keranjang" }).click();
   await expect(gridForm.getByRole("status")).toHaveText("Keranjang diperbarui.");
 
+  await page.getByText("Custom ukuran", { exact: true }).click();
   const customForm = page.locator("form", { has: page.getByRole("button", { name: "Tambah ukuran custom" }) });
   await customForm.getByLabel("Warna").selectOption({ label: "Putih" });
-  await customForm.getByLabel("Lingkar dada (cm)").fill("150");
-  await customForm.getByLabel("Panjang badan (cm)").fill("140");
-  await customForm.evaluate((form) => form.setAttribute("novalidate", ""));
+  await customForm.getByLabel(/Lingkar dada/).fill("150");
+  await customForm.getByLabel(/Panjang badan/).fill("140");
   await customForm.getByRole("button", { name: "Tambah ukuran custom" }).click();
   await expect(customForm.getByRole("alert")).toHaveText("Lingkar dada maksimal 140 cm.");
-  await customForm.getByLabel("Lingkar dada (cm)").fill("120.5");
+  await customForm.getByLabel(/Lingkar dada/).fill("120.5");
   await customForm.getByRole("button", { name: "Tambah ukuran custom" }).click();
   await expect(customForm.getByRole("status")).toHaveText("Ukuran custom ditambahkan ke keranjang.");
 
@@ -36,9 +36,11 @@ test("agent fills the grid, adds a custom size, and checks out two batches as tw
   await expect(summary).toContainText("Rp 207.500".replace(" ", " "));
   await expect(page.getByText("akan dibuat 2 pesanan terpisah")).toBeVisible();
 
-  await expect(page.getByText("Pastikan pesanan sudah benar. Setelah DP dibayar, pesanan tidak bisa diubah atau dibatalkan.")).toBeVisible();
-  await page.getByLabel("Saya sudah memastikan pesanan ini benar.").check();
   await page.getByRole("button", { name: "Checkout" }).click();
+  await expect(page.getByRole("dialog")).toContainText("Pastikan pesanan sudah benar. Setelah DP dibayar, pesanan tidak bisa diubah atau dibatalkan.");
+  await expect(page.getByRole("dialog")).toContainText("Rp\u00a0207.500");
+  await page.getByLabel("Saya sudah memastikan pesanan ini benar.").check();
+  await page.getByRole("button", { name: "Buat pesanan" }).click();
 
   await expectPath(page, "/orders");
   const confirmation = page.getByRole("status");
@@ -58,8 +60,9 @@ test("agent cancels an order before paying DP", async ({ page }) => {
   await page.getByRole("button", { name: "Simpan ke keranjang" }).click();
   await expect(page.getByRole("status")).toHaveText("Keranjang diperbarui.");
   await page.goto("/cart");
-  await page.getByLabel("Saya sudah memastikan pesanan ini benar.").check();
   await page.getByRole("button", { name: "Checkout" }).click();
+  await page.getByLabel("Saya sudah memastikan pesanan ini benar.").check();
+  await page.getByRole("button", { name: "Buat pesanan" }).click();
   await expectPath(page, "/orders");
 
   await page.getByRole("status").getByRole("link").click();

@@ -62,7 +62,7 @@ const ProductDetailPage = async ({ params }: PageProps<"/products/[product-id]">
                 {hex && ` (${hex})`}
                 <ActionForm
                   action={deleteColor}
-                  submitLabel={`Hapus warna ${name}`}
+                  submitLabel={`Hapus warna ${name}`} tone="danger"
                   pendingLabel="Menghapus…"
                   confirmMessage={`Hapus warna ${name}?`}
                 >
@@ -109,7 +109,7 @@ const ProductDetailPage = async ({ params }: PageProps<"/products/[product-id]">
         <p>Produk yang sudah pernah dipesan tidak dihapus, tetapi diarsipkan.</p>
         <ActionForm
           action={deleteProduct}
-          submitLabel="Hapus produk"
+          submitLabel="Hapus produk" tone="danger"
           pendingLabel="Menghapus…"
           confirmMessage={`Hapus ${product.name}? Jika sudah pernah dipesan, produk akan diarsipkan.`}
         >

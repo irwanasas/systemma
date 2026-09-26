@@ -21,3 +21,6 @@ export const parseRupiahInput = (input: string): Rupiah | null => {
   const value = Number(digits);
   return value > 0 && Number.isSafeInteger(value) ? toRupiah(value) : null;
 };
+
+export const dpAmountFor = (subtotal: number, dpPercent: number): Rupiah =>
+  toRupiah(Math.floor((subtotal * dpPercent + 99) / 100));

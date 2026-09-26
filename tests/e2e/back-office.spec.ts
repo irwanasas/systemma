@@ -40,8 +40,9 @@ test("admin settings, announcements, notifications and audit log", async ({ brow
   await agent.getByRole("button", { name: "Simpan ke keranjang" }).click();
   await expect(agent.getByRole("status")).toHaveText("Keranjang diperbarui.");
   await agent.goto("/cart");
-  await agent.getByLabel("Saya sudah memastikan pesanan ini benar.").check();
   await agent.getByRole("button", { name: "Checkout" }).click();
+  await agent.getByLabel("Saya sudah memastikan pesanan ini benar.").check();
+  await agent.getByRole("button", { name: "Buat pesanan" }).click();
   await expectPath(agent, "/orders");
   const orderLink = agent.getByRole("status").getByRole("link");
   const orderNumber = (await orderLink.textContent()) ?? "";

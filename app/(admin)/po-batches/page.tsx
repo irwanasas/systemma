@@ -52,7 +52,7 @@ const PoBatchesPage = async (): Promise<React.ReactNode> => {
                       <ActionForm
                         key={nextStatus}
                         action={setBatchStatus}
-                        submitLabel={`${actionLabel} ${productName} ${label}`}
+                        submitLabel={`${actionLabel} ${productName} ${label}`} tone="secondary"
                       >
                         <input type="hidden" name="id" value={id} />
                         <input type="hidden" name="status" value={nextStatus} />
