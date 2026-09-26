@@ -1,158 +1,117 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { cn } from "@/lib/utils"
-import { X as XIcon } from "@phosphor-icons/react"
-import { Dialog as DialogPrimitive } from "radix-ui"
+import { useSyncExternalStore } from "react";
+import { X } from "@phosphor-icons/react";
+import { Dialog as DialogPrimitive } from "radix-ui";
+import { cn } from "@/lib/utils";
 
-import { Button } from "@/components/ui/button"
+export const Dialog = DialogPrimitive.Root;
 
-function Dialog({
-  ...props
-}: React.ComponentProps<typeof DialogPrimitive.Root>) {
-  return <DialogPrimitive.Root data-slot="dialog" {...props} />
-}
+export const DialogTrigger = DialogPrimitive.Trigger;
 
-function DialogTrigger({
-  ...props
-}: React.ComponentProps<typeof DialogPrimitive.Trigger>) {
-  return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />
-}
+export const DialogClose = DialogPrimitive.Close;
 
-function DialogPortal({
-  ...props
-}: React.ComponentProps<typeof DialogPrimitive.Portal>) {
-  return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />
-}
+const SMALL_SCREEN_QUERY = "(max-width: 639px)";
 
-function DialogClose({
-  ...props
-}: React.ComponentProps<typeof DialogPrimitive.Close>) {
-  return <DialogPrimitive.Close data-slot="dialog-close" {...props} />
-}
+const subscribeToViewport = (onChange: () => void): (() => void) => {
+  window.visualViewport?.addEventListener("resize", onChange);
+  window.addEventListener("resize", onChange);
+  return () => {
+    window.visualViewport?.removeEventListener("resize", onChange);
+    window.removeEventListener("resize", onChange);
+  };
+};
 
-function DialogOverlay({
-  className,
-  ...props
-}: React.ComponentProps<typeof DialogPrimitive.Overlay>) {
+const readMaxHeight = (): number => {
+  const viewportHeight = window.visualViewport?.height ?? window.innerHeight;
+  const share = window.matchMedia(SMALL_SCREEN_QUERY).matches ? 0.95 : 0.9;
+  return Math.round(viewportHeight * share);
+};
+
+const useDialogMaxHeight = (): number | undefined =>
+  useSyncExternalStore(subscribeToViewport, readMaxHeight, () => undefined);
+
+type DialogContentProps = React.ComponentProps<typeof DialogPrimitive.Content> & {
+  size?: "sm" | "lg";
+};
+
+export const DialogContent = ({ className, size = "sm", style, children, ...props }: DialogContentProps): React.ReactNode => {
+  const maxHeight = useDialogMaxHeight();
   return (
-    <DialogPrimitive.Overlay
-      data-slot="dialog-overlay"
-      className={cn(
-        "fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0",
-        className
-      )}
-      {...props}
-    />
-  )
-}
-
-function DialogContent({
-  className,
-  children,
-  showCloseButton = true,
-  ...props
-}: React.ComponentProps<typeof DialogPrimitive.Content> & {
-  showCloseButton?: boolean
-}) {
-  return (
-    <DialogPortal data-slot="dialog-portal">
-      <DialogOverlay />
+    <DialogPrimitive.Portal>
+      <DialogPrimitive.Overlay data-slot="dialog-overlay" className="fixed inset-0 z-50 bg-black/50" />
       <DialogPrimitive.Content
         data-slot="dialog-content"
+        style={{ maxHeight: maxHeight ? `${maxHeight}px` : "90dvh", ...style }}
         className={cn(
-          "fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border bg-background p-6 shadow-lg duration-200 outline-none data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 sm:max-w-lg",
-          className
+          "fixed top-1/2 left-1/2 z-50 flex w-[calc(100vw-2rem)] -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl border border-border bg-surface text-foreground shadow-xl outline-none",
+          size === "lg" ? "max-w-3xl" : "max-w-lg",
+          className,
         )}
         {...props}
       >
         {children}
-        {showCloseButton && (
-          <DialogPrimitive.Close
-            data-slot="dialog-close"
-            className="absolute top-4 right-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
-          >
-            <XIcon />
-            <span className="sr-only">Tutup</span>
-          </DialogPrimitive.Close>
-        )}
       </DialogPrimitive.Content>
-    </DialogPortal>
-  )
-}
+    </DialogPrimitive.Portal>
+  );
+};
 
-function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="dialog-header"
-      className={cn("flex flex-col gap-2 text-center sm:text-left", className)}
-      {...props}
-    />
-  )
-}
+type DialogHeaderProps = React.ComponentProps<"div"> & {
+  onClose?: () => void;
+};
 
-function DialogFooter({
+export const DialogHeader = ({ className, children, onClose, ...props }: DialogHeaderProps): React.ReactNode => (
+  <div
+    data-slot="dialog-header"
+    className={cn("flex shrink-0 items-start justify-between gap-4 border-b border-border px-5 py-4", className)}
+    {...props}
+  >
+    <div className="flex min-w-0 flex-col gap-1">{children}</div>
+    {onClose ? (
+      <button
+        type="button"
+        data-slot="dialog-close"
+        aria-label="Tutup"
+        onClick={onClose}
+        className="-mt-1 -mr-2 inline-flex size-10 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+      >
+        <X aria-hidden="true" className="size-5" />
+      </button>
+    ) : (
+      <DialogPrimitive.Close
+        data-slot="dialog-close"
+        aria-label="Tutup"
+        className="-mt-1 -mr-2 inline-flex size-10 shrink-0 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+      >
+        <X aria-hidden="true" className="size-5" />
+      </DialogPrimitive.Close>
+    )}
+  </div>
+);
+
+export const DialogBody = ({ className, ...props }: React.ComponentProps<"div">): React.ReactNode => (
+  <div data-slot="dialog-body" className={cn("min-h-0 flex-auto overflow-y-auto px-5 py-4", className)} {...props} />
+);
+
+export const DialogFooter = ({ className, ...props }: React.ComponentProps<"div">): React.ReactNode => (
+  <div
+    data-slot="dialog-footer"
+    className={cn("flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-border px-5 py-3", className)}
+    {...props}
+  />
+);
+
+export const DialogTitle = ({ className, ...props }: React.ComponentProps<typeof DialogPrimitive.Title>): React.ReactNode => (
+  <DialogPrimitive.Title data-slot="dialog-title" className={cn("text-lg leading-snug font-semibold", className)} {...props} />
+);
+
+export const DialogDescription = ({
   className,
-  showCloseButton = false,
-  children,
   ...props
-}: React.ComponentProps<"div"> & {
-  showCloseButton?: boolean
-}) {
-  return (
-    <div
-      data-slot="dialog-footer"
-      className={cn(
-        "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
-        className
-      )}
-      {...props}
-    >
-      {children}
-      {showCloseButton && (
-        <DialogPrimitive.Close asChild>
-          <Button variant="outline">Close</Button>
-        </DialogPrimitive.Close>
-      )}
-    </div>
-  )
-}
-
-function DialogTitle({
-  className,
-  ...props
-}: React.ComponentProps<typeof DialogPrimitive.Title>) {
-  return (
-    <DialogPrimitive.Title
-      data-slot="dialog-title"
-      className={cn("text-lg leading-none font-semibold", className)}
-      {...props}
-    />
-  )
-}
-
-function DialogDescription({
-  className,
-  ...props
-}: React.ComponentProps<typeof DialogPrimitive.Description>) {
-  return (
-    <DialogPrimitive.Description
-      data-slot="dialog-description"
-      className={cn("text-sm text-muted-foreground", className)}
-      {...props}
-    />
-  )
-}
-
-export {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogOverlay,
-  DialogPortal,
-  DialogTitle,
-  DialogTrigger,
-}
+}: React.ComponentProps<typeof DialogPrimitive.Description>): React.ReactNode => (
+  <DialogPrimitive.Description
+    data-slot="dialog-description"
+    className={cn("text-ui text-muted-foreground", className)}
+    {...props}
+  />
+);

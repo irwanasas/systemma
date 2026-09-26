@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { expectPath, login, logout } from "./fixtures";
+import { expectPath, login, logout, confirmAction } from "./fixtures";
 
 test("agent fills the grid, adds a custom size, and checks out two batches as two orders", async ({ page }) => {
   await login(page, "e2e-buyer");
@@ -67,8 +67,8 @@ test("agent cancels an order before paying DP", async ({ page }) => {
 
   await page.getByRole("status").getByRole("link").click();
   await expect(page.getByRole("definition").first()).toHaveText("Menunggu DP");
-  page.once("dialog", (dialog) => dialog.accept());
   await page.getByRole("button", { name: "Batalkan pesanan" }).click();
+  await confirmAction(page, "Batalkan pesanan");
   await expect(page.getByRole("definition").first()).toHaveText("Dibatalkan");
   await expect(page.getByRole("button", { name: "Batalkan pesanan" })).toHaveCount(0);
 

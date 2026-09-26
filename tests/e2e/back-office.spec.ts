@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { expectPath, login } from "./fixtures";
+import { expectPath, login, confirmAction } from "./fixtures";
 
 test.describe.configure({ mode: "serial" });
 
@@ -61,8 +61,8 @@ test("admin settings, announcements, notifications and audit log", async ({ brow
   await expect(admin.getByRole("cell", { name: "update_settings" }).first()).toBeVisible();
 
   await admin.goto("/announcements");
-  admin.once("dialog", (dialog) => dialog.accept());
   await admin.getByRole("button", { name: "Hapus pengumuman PO Lebaran dibuka" }).click();
+  await confirmAction(admin, "Hapus pengumuman PO Lebaran dibuka");
   await expect(admin.getByRole("heading", { name: "PO Lebaran dibuka" })).toHaveCount(0);
 
   await agent.goto("/audit-log");

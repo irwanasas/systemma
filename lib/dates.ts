@@ -24,3 +24,13 @@ export const isoToJakartaInput = (value: string): string =>
   new Date(new Date(value).getTime() + 7 * 60 * 60 * 1000).toISOString().slice(0, 16);
 
 export const hoursFromNow = (hours: number): Date => new Date(Date.now() + hours * 60 * 60 * 1000);
+
+const shortDateTimeFormatter = new Intl.DateTimeFormat("id-ID", {
+  day: "numeric",
+  month: "short",
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: JAKARTA_TIME_ZONE,
+});
+
+export const formatShortDateTime = (value: string | Date): string => shortDateTimeFormatter.format(new Date(value));

@@ -182,13 +182,26 @@
 
   a {
     color: var(--primary-strong);
+    text-decoration: none;
+  }
+
+  a:hover {
     text-decoration-line: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 3px;
   }
 
-  a:hover {
+  p a:not([class]),
+  dd a:not([class]),
+  li a:not([class]) {
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+
+  td a:not([class]) {
     color: var(--text);
+    font-weight: 500;
   }
 
   :focus-visible {
@@ -283,7 +296,22 @@
   }
 
   thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
     border-bottom: 1px solid var(--border-strong);
+    background: var(--surface);
+    white-space: nowrap;
+  }
+
+  tbody tr:hover {
+    background: color-mix(in srgb, var(--surface-muted) 60%, transparent);
+  }
+
+  [data-density="compact"] input:not([type="checkbox"], [type="hidden"], [type="file"]),
+  [data-density="compact"] select,
+  [data-density="compact"] textarea {
+    font-size: var(--text-ui);
   }
 
   th,
@@ -355,6 +383,48 @@
     background: var(--success-soft);
     color: var(--text);
   }
+}
+
+@keyframes aurora-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes aurora-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes aurora-dialog-in {
+  from {
+    opacity: 0;
+    scale: 0.95;
+  }
+}
+
+@keyframes aurora-dialog-out {
+  to {
+    opacity: 0;
+    scale: 0.95;
+  }
+}
+
+[data-slot="dialog-overlay"][data-state="open"] {
+  animation: aurora-fade-in 180ms ease-out;
+}
+
+[data-slot="dialog-overlay"][data-state="closed"] {
+  animation: aurora-fade-out 120ms ease-in;
+}
+
+[data-slot="dialog-content"][data-state="open"] {
+  animation: aurora-dialog-in 180ms ease-out;
+}
+
+[data-slot="dialog-content"][data-state="closed"] {
+  animation: aurora-dialog-out 120ms ease-in;
 }
 
 @media (prefers-reduced-motion: reduce) {

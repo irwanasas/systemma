@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "@fontsource-variable/inter";
 import "./globals.css";
+import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
   title: "Aurora",
@@ -9,7 +10,10 @@ export const metadata: Metadata = {
 
 const RootLayout = ({ children }: LayoutProps<"/">): React.ReactNode => (
   <html lang="id">
-    <body>{children}</body>
+    <body>
+      {children}
+      <Toaster />
+    </body>
   </html>
 );
 

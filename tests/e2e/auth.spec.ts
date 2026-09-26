@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { E2E_PASSWORD, expectPath, login, logout } from "./fixtures";
+import { E2E_PASSWORD, expectPath, login, logout, confirmAction } from "./fixtures";
 
 test("admin logs in and lands on the dashboard", async ({ page }) => {
   await login(page, "e2e-admin");
@@ -51,8 +51,8 @@ test("deactivated agent loses the session and cannot log in again", async ({ bro
   await login(admin, "e2e-admin");
   await expectPath(admin, "/dashboard");
   await admin.goto("/agents");
-  admin.once("dialog", (dialog) => dialog.accept());
   await admin.getByRole("button", { name: "Nonaktifkan e2e-victim" }).click();
+  await confirmAction(admin, "Nonaktifkan e2e-victim");
   await expect(admin.getByRole("row", { name: /e2e-victim/ }).getByRole("cell", { name: "Nonaktif", exact: true }).first()).toBeVisible();
 
   await victim.goto("/catalog");

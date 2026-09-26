@@ -17,3 +17,7 @@ export const logout = async (page: Page): Promise<void> => {
   await page.getByRole("button", { name: /^Akun / }).click();
   await page.getByRole("menuitem", { name: "Keluar" }).click();
 };
+
+export const confirmAction = async (page: Page, confirmLabel: string): Promise<void> => {
+  await page.getByRole("alertdialog").getByRole("button", { name: confirmLabel, exact: true }).click();
+};

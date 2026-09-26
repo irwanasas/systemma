@@ -3,7 +3,7 @@
 import { startTransition, useActionState, useState } from "react";
 import { CircleNotch, Warning } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogBody, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { checkout } from "@/features/cart/server/actions";
 import type { FormState } from "@/lib/errors";
 
@@ -41,17 +41,18 @@ export const CheckoutDialog = ({
       <DialogTrigger asChild>
         <Button className="min-h-11 px-6 text-base font-semibold">Checkout</Button>
       </DialogTrigger>
-      <DialogContent className="bg-surface">
-        <form onSubmit={handleSubmit} aria-busy={isPending}>
-          <DialogHeader>
-            <DialogTitle>Konfirmasi pesanan</DialogTitle>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Konfirmasi pesanan</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} aria-busy={isPending} className="!flex min-h-0 flex-auto !flex-col !items-stretch !gap-0">
+          <DialogBody className="flex flex-col gap-4">
             <DialogDescription asChild>
-              <div className="flex items-start gap-2 rounded-md border-l-4 border-warning bg-warning-soft p-3 text-left text-foreground">
+              <div className="flex items-start gap-2 rounded-md border-l-4 border-warning bg-warning-soft p-3 text-left text-base text-foreground">
                 <Warning aria-hidden="true" weight="bold" className="mt-0.5 shrink-0 text-warning" />
                 <p>{confirmationText}</p>
               </div>
             </DialogDescription>
-          </DialogHeader>
           <dl>
             <dt>DP yang harus dibayar</dt>
             <dd className="font-semibold">{dpLabel}</dd>
@@ -77,7 +78,8 @@ export const CheckoutDialog = ({
             <label htmlFor="isConfirmed">Saya sudah memastikan pesanan ini benar.</label>
           </div>
           {state.error && <p role="alert">{state.error}</p>}
-          <DialogFooter className="w-full">
+          </DialogBody>
+          <DialogFooter>
             <Button type="submit" disabled={isPending || !isConfirmed} className="min-h-11 px-5 font-semibold">
               {isPending && <CircleNotch aria-hidden="true" className="animate-spin" />}
               {isPending ? "Membuat pesanan…" : "Buat pesanan"}

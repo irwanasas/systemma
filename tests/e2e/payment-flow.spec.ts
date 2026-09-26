@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { expectPath, login } from "./fixtures";
+import { expectPath, login, confirmAction } from "./fixtures";
 
 const PNG_BYTES = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
@@ -58,8 +58,8 @@ test("order goes from checkout to completed through DP review, production, settl
 
   await admin.goto("/payments");
   await admin.getByRole("link", { name: new RegExp(orderNumber) }).click();
-  admin.once("dialog", (dialog) => dialog.accept());
   await admin.getByRole("button", { name: `Setujui DP ${orderNumber}` }).click();
+  await confirmAction(admin, `Setujui DP ${orderNumber}`);
   await expect(admin.getByRole("status")).toContainText(`DP pesanan ${orderNumber} disetujui`);
 
   await admin.goto("/orders");
@@ -70,8 +70,8 @@ test("order goes from checkout to completed through DP review, production, settl
   await expect(statusOf(admin)).toHaveText("Diproduksi");
   await admin.getByRole("button", { name: "Produksi selesai, tagih pelunasan" }).click();
   await expect(statusOf(admin)).toHaveText("Menunggu pelunasan");
-  admin.once("dialog", (dialog) => dialog.accept());
   await admin.getByRole("button", { name: "Tandai pelunasan diterima" }).click();
+  await confirmAction(admin, "Tandai pelunasan diterima");
   await expect(statusOf(admin)).toHaveText("Lunas");
   await admin.getByRole("button", { name: "Tandai sudah dikirim" }).click();
   await expect(statusOf(admin)).toHaveText("Dikirim");

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatDateTime, isoToJakartaInput, jakartaInputToIso } from "@/lib/dates";
+import { formatDateTime, formatShortDateTime, isoToJakartaInput, jakartaInputToIso } from "@/lib/dates";
 
 describe("dates", () => {
   it("reads datetime-local input as Asia/Jakarta time", () => {
@@ -17,5 +17,11 @@ describe("dates", () => {
   it("displays UTC timestamps in WIB", () => {
     expect(formatDateTime("2026-10-01T17:30:00.000Z")).toContain("00.30");
     expect(formatDateTime("2026-10-01T17:30:00.000Z")).toMatch(/2 Okt 2026/);
+  });
+});
+
+describe("formatShortDateTime", () => {
+  it("shows day, short month and time in WIB without the year", () => {
+    expect(formatShortDateTime("2026-09-26T11:36:00.000Z")).toBe("26 Sep, 18.36");
   });
 });
