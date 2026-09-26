@@ -35,7 +35,7 @@ export const PageTabs = ({ label, tabs, orientation = "horizontal" }: PageTabsPr
               className={cn(
                 "min-h-11 flex-none rounded-none border-0 px-3 text-ui text-muted-foreground after:!bottom-[-1px] after:bg-primary hover:text-foreground data-[state=active]:font-semibold data-[state=active]:text-primary-strong",
                 isVertical &&
-                  "lg:justify-start lg:rounded-md lg:after:hidden lg:data-[state=active]:bg-primary-soft",
+                  "lg:justify-start lg:rounded-md lg:after:hidden lg:data-[state=active]:!bg-primary-soft",
               )}
             >
               {tabLabel}
