@@ -20,6 +20,10 @@ for (const colorScheme of ["light", "dark"] as const) {
       await expectNoViolations(page, "/login");
     });
 
+    test(`landing page has no WCAG 2.1 AA violations in ${colorScheme} theme`, async ({ page }) => {
+      await expectNoViolations(page, "/");
+    });
+
     test(`agent pages have no WCAG 2.1 AA violations in ${colorScheme} theme`, async ({ page }) => {
       await login(page, "e2e-a11y");
       await expectPath(page, "/catalog");
