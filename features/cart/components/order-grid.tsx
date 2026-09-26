@@ -50,7 +50,7 @@ const stepperButtonClass =
 
 export const OrderGrid = ({ colors, sizes, variantByCell, quantities, setQuantity }: OrderGridProps): React.ReactNode => (
   <>
-    <div data-grid className="hidden w-fit max-w-full overflow-x-auto rounded-lg border border-border bg-surface md:block">
+    <div data-grid className="hidden w-fit max-w-full overflow-x-auto rounded-lg border border-border bg-surface lg:block">
       <table className="!w-auto">
         <caption className="sr-only">Jumlah pcs per warna dan ukuran. Gunakan tombol panah untuk berpindah sel.</caption>
         <thead>
@@ -135,7 +135,7 @@ export const OrderGrid = ({ colors, sizes, variantByCell, quantities, setQuantit
       </table>
     </div>
 
-    <Accordion type="multiple" className="w-full rounded-lg border border-border bg-surface md:hidden">
+    <Accordion type="multiple" className="w-full rounded-lg border border-border bg-surface lg:hidden">
       {colors.map((color) => {
         const colorPcs = sizes.reduce((sum, { sizeCode }) => {
           const variantId = variantByCell[`${color.id}:${sizeCode}`];

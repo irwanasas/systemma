@@ -100,5 +100,4 @@ Tests at the end: typecheck and lint clean; 33 unit, 95 pgTAP and 28 e2e (axe in
 
 Open:
 - Product photos (feature decision).
-- The iPad-width grid steppers are 28px; typing in the cell still works.
 - The admin compact density keeps 36px controls on phones.

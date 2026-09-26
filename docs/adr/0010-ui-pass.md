@@ -15,7 +15,7 @@ Status: accepted
   - In-app confirm dialogs replace `window.confirm`.
 - Order modal:
   - Built with `app/(agent)/@modal/(.)catalog/[product-slug]`, so the URL stays shareable and Back closes the modal. Direct loads render the full page.
-  - Grid from 768px up, with 96px size columns and −/+ steppers; below 768px, one accordion per color.
+  - Grid from 1024px up, with 96px size columns and −/+ steppers; below 1024px (phones and tablets), one accordion per color with 44px steppers.
   - Custom size is an inline section in the modal.
   - Closing with unsaved changes asks "Buang perubahan?".
   - The modal closes only after the server confirms, then shows a toast with "Lihat keranjang". Focus returns to the card or cart link.

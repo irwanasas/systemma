@@ -72,3 +72,22 @@ test.describe("on a phone", () => {
     await expect(page.getByText("Rp 60.000")).toBeVisible();
   });
 });
+
+test.describe("on a tablet", () => {
+  test.use({ viewport: { width: 900, height: 1180 } });
+
+  test("order grid uses the accordion with 44px steppers below 1024px", async ({ page }) => {
+    await login(page, "e2e-a11y");
+    await expectPath(page, "/catalog");
+    await page.goto("/catalog/e2e-cart");
+    await expect(page.getByLabel("Jumlah Hitam ukuran S")).toBeHidden();
+    await page.getByRole("button", { name: /Hitam · 0 pcs/ }).click();
+    const plus = page.getByRole("button", { name: "Tambah Hitam M" });
+    const box = await plus.boundingBox();
+    expect(box?.width).toBeGreaterThanOrEqual(44);
+    expect(box?.height).toBeGreaterThanOrEqual(44);
+    await plus.click();
+    await expect(page.getByLabel("Jumlah Hitam M")).toHaveValue("1");
+  });
+});
+
