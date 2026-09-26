@@ -1,4 +1,15 @@
 do $$
+begin
+  if coalesce(current_setting('aurora.seed', true), '') <> 'local' then
+    raise exception 'seed.sql is for the local database only: run npm run db:reset';
+  end if;
+  if exists (select 1 from users) then
+    raise exception 'seed.sql only runs on an empty database';
+  end if;
+end
+$$;
+
+do $$
 declare
   seed_user record;
   seed_password text;

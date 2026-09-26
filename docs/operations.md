@@ -22,7 +22,16 @@ Check them with `select jobname, schedule, active from cron.job;` and recent run
 
 ## First admin in production
 
-The seed (`supabase/seed.sql`) creates demo agents and products and is for local use only. For production, create the first admin once in the SQL editor, then log in and change the password (the app forces it):
+The seed (`supabase/seed.sql`) creates demo agents and products and is for local use only. The demo seed (`supabase/demo/demo-seed.sql`) adds sample orders on top. Neither can reach production:
+
+- Only `npm run db:reset` loads `seed.sql`, and only `npm run db:demo` loads `demo-seed.sql`. Both call psql on the hardcoded local URL `127.0.0.1:54322`.
+- `[db.seed]` is disabled in `supabase/config.toml`, so `supabase db reset` and `supabase db push` never run a seed, even with `--linked` or `--include-seed`.
+- Each file first checks for the session setting `aurora.seed=local`, which only the npm scripts pass (through `PGOPTIONS`). Without it the file stops with an error. This covers pasting the file into the SQL editor.
+- `seed.sql` refuses to run if any user already exists. `demo-seed.sql` refuses to run if any order exists or if the base seed user `agen1` is missing.
+- `supabase/demo/upload-proofs.mjs` refuses to run unless `SUPABASE_URL` is `localhost` or `127.0.0.1`.
+- The e2e setup deletes `e2e-%` users and products and resets bank accounts. It refuses to run unless `E2E_DATABASE_URL` points to a local host.
+
+For production, create the first admin once in the SQL editor, then log in and change the password (the app forces it):
 
 ```sql
 with password as (select translate(encode(extensions.gen_random_bytes(12), 'base64'), '+/', 'xy') as value)

@@ -3,6 +3,9 @@ import { createClient } from "@supabase/supabase-js";
 
 const { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH } = process.env;
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) throw new Error("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required");
+if (!["localhost", "127.0.0.1", "[::1]"].includes(new URL(SUPABASE_URL).hostname)) {
+  throw new Error(`demo proofs are uploaded to the local Supabase only, got ${new URL(SUPABASE_URL).hostname}`);
+}
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
 const rupiah = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 });

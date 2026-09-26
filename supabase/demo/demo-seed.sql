@@ -1,3 +1,14 @@
+do $$
+begin
+  if coalesce(current_setting('aurora.seed', true), '') <> 'local' then
+    raise exception 'demo-seed.sql is for the local database only: run npm run db:demo';
+  end if;
+  if exists (select 1 from orders) or not exists (select 1 from users where username = 'agen1') then
+    raise exception 'demo-seed.sql only runs right after the local base seed';
+  end if;
+end
+$$;
+
 create function pg_temp.demo_order(p_agent uuid, p_slug text, p_items jsonb) returns uuid
 language plpgsql
 as $$

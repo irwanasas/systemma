@@ -1,8 +1,9 @@
 import { execFileSync } from "node:child_process";
 import { expect, test } from "@playwright/test";
 import { expectPath, login } from "./fixtures";
+import { e2eDatabaseUrl } from "./database";
 
-const databaseUrl = process.env.E2E_DATABASE_URL ?? "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
+const databaseUrl = e2eDatabaseUrl();
 
 const psql = (sql: string): string =>
   execFileSync("psql", [databaseUrl, "-q", "-t", "-A", "-v", "ON_ERROR_STOP=1", "-c", sql], { encoding: "utf8" }).trim();

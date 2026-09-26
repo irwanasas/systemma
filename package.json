@@ -11,10 +11,10 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:db": "supabase test db",
-    "db:reset": "supabase db reset && psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -q -v ON_ERROR_STOP=1 -f supabase/seed.sql",
+    "db:reset": "supabase db reset && PGOPTIONS='-c aurora.seed=local' psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -q -v ON_ERROR_STOP=1 -f supabase/seed.sql",
     "db:types": "supabase gen types typescript --local > lib/supabase/database.types.ts",
     "db:start": "supabase start -x gotrue,realtime,imgproxy,studio,postgres-meta,logflare,vector,supavisor,edge-runtime,mailpit",
-    "db:demo": "npm run db:reset && psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -q -1 -v ON_ERROR_STOP=1 -f supabase/demo/demo-seed.sql && node --env-file=.env.local supabase/demo/upload-proofs.mjs"
+    "db:demo": "npm run db:reset && PGOPTIONS='-c aurora.seed=local' psql postgresql://postgres:postgres@127.0.0.1:54322/postgres -q -1 -v ON_ERROR_STOP=1 -f supabase/demo/demo-seed.sql && node --env-file=.env.local supabase/demo/upload-proofs.mjs"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.3.0",

@@ -6,7 +6,7 @@ values ('00000000-0000-0000-0000-00000000a001', 't-agent', 'x', 'agent', 'Tes Ag
 insert into agents (user_id, code) values ('00000000-0000-0000-0000-00000000a001', 'T001');
 
 insert into products (id, slug, name, category_id, status, custom_size_enabled, custom_unit_price)
-select '00000000-0000-0000-0000-00000000b001', 'zelline', 'Zelline', id, 'active', true, 350000
+select '00000000-0000-0000-0000-00000000b001', 't-zelline', 'Zelline', id, 'active', true, 350000
 from categories where code = 'dress';
 
 insert into product_colors (id, product_id, name, sort) values

@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { hashSync } from "bcryptjs";
 import { E2E_PASSWORD } from "./fixtures";
+import { e2eDatabaseUrl } from "./database";
 
 type TestUser = {
   username: string;
@@ -71,7 +72,7 @@ const productsSql = `
 `;
 
 const globalSetup = async (): Promise<void> => {
-  const databaseUrl = process.env.E2E_DATABASE_URL ?? "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
+  const databaseUrl = e2eDatabaseUrl();
   const sql = [cleanupSql, usersSql(hashSync(E2E_PASSWORD, 4)), productsSql].join("\n");
   execFileSync("psql", [databaseUrl, "-q", "-v", "ON_ERROR_STOP=1", "-1", "-c", sql], { stdio: ["ignore", "ignore", "inherit"] });
 };
