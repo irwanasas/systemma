@@ -15,7 +15,7 @@ type ChartCardProps = {
   id: string;
   title: string;
   description: string;
-  kind: "line" | "bar" | "bar-horizontal";
+  kind: "line" | "bar" | "bar-horizontal" | "bar-daily";
   unit: "rupiah" | "pcs";
   data: ValuePoint[];
   className?: string;
@@ -49,6 +49,7 @@ export const ChartCard = ({ id, title, description, kind, unit, data, className 
               formatValue={formatValue}
               formatTick={formatTick}
               layout={kind === "bar-horizontal" ? "vertical" : "horizontal"}
+              timeSeries={kind === "bar-daily"}
             />
           )}
         </div>

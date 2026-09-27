@@ -95,7 +95,7 @@ const RecapPage = async ({ searchParams }: PageProps<"/recap">): Promise<React.R
           id="daily-chart-heading"
           title="Nilai pesanan per hari"
           description="Periode yang dipilih, tanpa pesanan dibatalkan dan kedaluwarsa."
-          kind="line"
+          kind="bar-daily"
           unit="rupiah"
           data={dailyValues(orderValues, period.from, period.to)}
         />

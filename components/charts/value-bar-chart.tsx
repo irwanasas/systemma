@@ -10,11 +10,19 @@ type ValueBarChartProps = {
   formatValue: (value: number) => string;
   formatTick: (value: number) => string;
   layout?: "vertical" | "horizontal";
+  timeSeries?: boolean;
 };
 
 const SERIES = ["var(--color-chart-1)", "var(--color-chart-2)", "var(--color-chart-3)", "var(--color-chart-4)", "var(--color-chart-5)"];
 
-const ValueBarChart = ({ data, seriesName, formatValue, formatTick, layout = "horizontal" }: ValueBarChartProps): React.ReactNode => {
+const ValueBarChart = ({
+  data,
+  seriesName,
+  formatValue,
+  formatTick,
+  layout = "horizontal",
+  timeSeries = false,
+}: ValueBarChartProps): React.ReactNode => {
   const isVertical = layout === "vertical";
   return (
     <ResponsiveContainer width="100%" height="100%">
@@ -27,22 +35,29 @@ const ValueBarChart = ({ data, seriesName, formatValue, formatTick, layout = "ho
           </>
         ) : (
           <>
-            <XAxis dataKey="label" {...axisProps} />
+            <XAxis dataKey="label" {...axisProps} interval="preserveStartEnd" minTickGap={timeSeries ? 16 : 4} />
             <YAxis {...axisProps} width={56} tickFormatter={formatTick} allowDecimals={false} />
           </>
         )}
         <Tooltip {...tooltipProps} formatter={(value) => [formatValue(Number(value)), seriesName]} />
-        <Bar dataKey="value" name={seriesName} radius={isVertical ? [0, 4, 4, 0] : [4, 4, 0, 0]} maxBarSize={48} isAnimationActive={false}>
-          {data.map(({ label }, index) => (
-            <Cell key={label} fill={SERIES[index % SERIES.length]} />
-          ))}
-          <LabelList
-            dataKey="value"
-            position={isVertical ? "right" : "top"}
-            formatter={(value) => formatTick(Number(value))}
-            fill="var(--color-foreground)"
-            fontSize={12}
-          />
+        <Bar
+          dataKey="value"
+          name={seriesName}
+          fill={SERIES[0]}
+          radius={isVertical ? [0, 4, 4, 0] : [3, 3, 0, 0]}
+          maxBarSize={timeSeries ? 24 : 48}
+          isAnimationActive={false}
+        >
+          {!timeSeries && data.map(({ label }, index) => <Cell key={label} fill={SERIES[index % SERIES.length]} />)}
+          {!timeSeries && (
+            <LabelList
+              dataKey="value"
+              position={isVertical ? "right" : "top"}
+              formatter={(value) => formatTick(Number(value))}
+              fill="var(--color-foreground)"
+              fontSize={12}
+            />
+          )}
         </Bar>
       </BarChart>
     </ResponsiveContainer>
