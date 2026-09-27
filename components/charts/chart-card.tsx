@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useEffect, useRef, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ValuePoint } from "@/features/dashboard/buckets";
 import { formatRupiah, formatRupiahCompact, toRupiah } from "@/lib/money";
@@ -26,10 +27,38 @@ const formatters = {
   pcs: { value: (value: number) => `${value} pcs`, tick: (value: number) => String(value) },
 };
 
+const useNearViewportWhenIdle = (): [React.RefObject<HTMLDivElement | null>, boolean] => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+    const hasIdleCallback = typeof window.requestIdleCallback === "function";
+    let idleHandle: number | undefined;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry?.isIntersecting) return;
+        observer.disconnect();
+        const markReady = (): void => setReady(true);
+        idleHandle = hasIdleCallback ? window.requestIdleCallback(markReady, { timeout: 2000 }) : window.setTimeout(markReady, 200);
+      },
+    );
+    observer.observe(element);
+    return () => {
+      observer.disconnect();
+      if (idleHandle === undefined) return;
+      if (hasIdleCallback) window.cancelIdleCallback(idleHandle);
+      else window.clearTimeout(idleHandle);
+    };
+  }, []);
+  return [ref, ready];
+};
+
 export const ChartCard = ({ id, title, description, kind, unit, data, className }: ChartCardProps): React.ReactNode => {
   const { value: formatValue, tick: formatTick } = formatters[unit];
   const hasData = data.some(({ value }) => value > 0);
   const height = kind === "bar-horizontal" ? Math.max(160, data.length * 44 + 40) : 256;
+  const [chartRef, chartReady] = useNearViewportWhenIdle();
   return (
     <section aria-labelledby={id} className={`flex flex-col gap-3 rounded-xl border border-border bg-surface p-4 sm:p-5 ${className ?? ""}`}>
       <div className="flex flex-col gap-0.5">
@@ -39,8 +68,10 @@ export const ChartCard = ({ id, title, description, kind, unit, data, className 
         <p className="text-sm text-muted-foreground">{description}</p>
       </div>
       {hasData ? (
-        <div role="group" aria-label={`Grafik ${title}`} style={{ height }}>
-          {kind === "line" ? (
+        <div ref={chartRef} role="group" aria-label={`Grafik ${title}`} style={{ height }}>
+          {!chartReady ? (
+            chartLoading()
+          ) : kind === "line" ? (
             <ValueLineChart data={data} seriesName={title} formatValue={formatValue} />
           ) : (
             <ValueBarChart
