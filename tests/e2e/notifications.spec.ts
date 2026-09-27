@@ -84,6 +84,7 @@ test("bell panel shows the latest ten, marks all read and links to the full list
 
   const before = psql("select to_char(now(), 'YYYY-MM-DD\"T\"HH24:MI:SS.US') || '+00'");
   await panel.getByRole("button", { name: "Tandai semua dibaca" }).click();
+  await expect(panel.getByText(/belum dibaca$/)).toBeHidden();
   await expect(panel.getByRole("button", { name: "Tandai semua dibaca" })).toBeDisabled();
   expect(
     psql(`select count(*) from notifications where recipient_id = (select id from users where username = 'e2e-notif-admin') and read_at is null and created_at < '${before}'`),
