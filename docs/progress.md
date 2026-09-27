@@ -127,3 +127,16 @@ Needs client input: the real logo and the landing contact details.
 - Notification panel and `/notifications` page; the dashboard no longer lists notifications.
 - Details in ADR 0011, "Follow-ups".
 
+
+## Performance pass
+
+Measured on a production build: Lighthouse mobile, median of 3 runs; server timing with a simulated 20 ms Supabase round trip.
+
+- Charts load only once they are in view and the browser is idle. Dashboard mobile: TBT 322 → 91 ms, JS 379 → 255 KB, score 83 → 92.
+- Each role gets its own shell, and nav icons are rendered on the server. Catalog initial JS 244 → 212 KB.
+- The session is renewed after the response. Every signed-in page is 24–32 ms faster.
+- Cart edit links and DP amounts are fetched in parallel. Cart 166 → 117 ms.
+- The order panel and cart badge load in one parallel wave. Product page and modal 124 → 82 ms.
+- Pending with the logo: the landing hero logo loads lazily, saving 38 KB on mobile.
+
+Suggested, not applied (schema): an `orders(created_at)` index, one count function for the dashboard, and a partial unread index on `notifications`.
