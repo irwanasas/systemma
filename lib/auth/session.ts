@@ -1,6 +1,7 @@
 import "server-only";
 import { createHash, randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
+import { after } from "next/server";
 import { cache } from "react";
 import { SESSION_COOKIE, SESSION_MAX_AGE_SECONDS, sessionCookieOptions } from "@/lib/auth/cookie";
 import { getAdminClient } from "@/lib/supabase/admin";
@@ -61,11 +62,13 @@ export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
   const { users: user } = session;
   if (!user.is_active) return null;
 
-  const { error: renewError } = await supabase
-    .from("sessions")
-    .update({ expires_at: sessionExpiry(), last_seen_at: new Date().toISOString() })
-    .eq("id", session.id);
-  if (renewError) throw renewError;
+  after(async () => {
+    const { error: renewError } = await supabase
+      .from("sessions")
+      .update({ expires_at: sessionExpiry(), last_seen_at: new Date().toISOString() })
+      .eq("id", session.id);
+    if (renewError) throw renewError;
+  });
 
   return {
     id: user.id,
