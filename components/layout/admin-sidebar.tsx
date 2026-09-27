@@ -14,10 +14,11 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { adminNavGroups, isActivePath } from "@/components/layout/nav-config";
+import type { NavIcons } from "@/components/layout/nav-icons";
 import { BrandMark } from "@/components/brand/brand-mark";
 import { cn } from "@/lib/utils";
 
-export const AdminSidebar = (): React.ReactNode => {
+export const AdminSidebar = ({ icons }: { icons: NavIcons }): React.ReactNode => {
   const pathname = usePathname();
   return (
     <Sidebar aria-label="Navigasi back office">
@@ -34,7 +35,7 @@ export const AdminSidebar = (): React.ReactNode => {
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {items.map(({ href, label: itemLabel, icon: ItemIcon }) => {
+                {items.map(({ href, label: itemLabel }) => {
                   const isActive = isActivePath(pathname, href);
                   return (
                     <SidebarMenuItem key={href}>
@@ -48,7 +49,7 @@ export const AdminSidebar = (): React.ReactNode => {
                         )}
                       >
                         <Link href={href} aria-current={isActive ? "page" : undefined} className="no-underline hover:no-underline">
-                          <ItemIcon aria-hidden="true" weight={isActive ? "fill" : "regular"} className={cn(isActive && "text-ochre")} />
+                          {isActive ? icons[href]?.active : icons[href]?.regular}
                           <span>{itemLabel}</span>
                         </Link>
                       </SidebarMenuButton>

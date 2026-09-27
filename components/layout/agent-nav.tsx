@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CountBadge } from "@/components/layout/count-badge";
 import { agentNavItems, isActivePath } from "@/components/layout/nav-config";
+import type { NavIcons } from "@/components/layout/nav-icons";
 import { cn } from "@/lib/utils";
 
 export const AgentTopNav = ({ cartCount }: { cartCount: number }): React.ReactNode => {
@@ -36,7 +37,7 @@ export const AgentTopNav = ({ cartCount }: { cartCount: number }): React.ReactNo
   );
 };
 
-export const AgentBottomNav = ({ cartCount }: { cartCount: number }): React.ReactNode => {
+export const AgentBottomNav = ({ cartCount, icons }: { cartCount: number; icons: NavIcons }): React.ReactNode => {
   const pathname = usePathname();
   return (
     <nav
@@ -45,7 +46,7 @@ export const AgentBottomNav = ({ cartCount }: { cartCount: number }): React.Reac
       className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-surface pb-[env(safe-area-inset-bottom)] md:hidden"
     >
       <ul className="grid list-none grid-cols-4 p-0">
-        {agentNavItems.map(({ href, label, icon: ItemIcon }) => {
+        {agentNavItems.map(({ href, label }) => {
           const isActive = isActivePath(pathname, href);
           return (
             <li key={href}>
@@ -60,7 +61,7 @@ export const AgentBottomNav = ({ cartCount }: { cartCount: number }): React.Reac
                 )}
               >
                 <span className="relative">
-                  <ItemIcon aria-hidden="true" className="size-6" weight={isActive ? "fill" : "regular"} />
+                  {isActive ? icons[href]?.active : icons[href]?.regular}
                   {href === "/cart" && <CountBadge count={cartCount} className="absolute -top-1.5 -right-3" />}
                 </span>
                 {label}

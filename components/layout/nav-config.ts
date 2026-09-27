@@ -1,26 +1,6 @@
-import {
-  Bell,
-  CalendarBlank,
-  ChartBar,
-  ClockCounterClockwise,
-  Dress,
-  GearSix,
-  Info,
-  Megaphone,
-  Package,
-  Receipt,
-  SealCheck,
-  ShoppingBag,
-  SquaresFour,
-  Storefront,
-  UsersThree,
-  type Icon,
-} from "@phosphor-icons/react";
-
 export type NavItem = {
   href: string;
   label: string;
-  icon: Icon;
 };
 
 export type NavGroup = {
@@ -32,41 +12,41 @@ export const adminNavGroups: NavGroup[] = [
   {
     label: "Operasional",
     items: [
-      { href: "/dashboard", label: "Dasbor", icon: SquaresFour },
-      { href: "/orders", label: "Pesanan", icon: Receipt },
-      { href: "/payments", label: "Bukti DP", icon: SealCheck },
-      { href: "/notifications", label: "Notifikasi", icon: Bell },
+      { href: "/dashboard", label: "Dasbor" },
+      { href: "/orders", label: "Pesanan" },
+      { href: "/payments", label: "Bukti DP" },
+      { href: "/notifications", label: "Notifikasi" },
     ],
   },
   {
     label: "Katalog",
     items: [
-      { href: "/products", label: "Produk", icon: Dress },
-      { href: "/po-batches", label: "Batch PO", icon: CalendarBlank },
+      { href: "/products", label: "Produk" },
+      { href: "/po-batches", label: "Batch PO" },
     ],
   },
   {
     label: "Agen & Info",
     items: [
-      { href: "/agents", label: "Agen", icon: UsersThree },
-      { href: "/announcements", label: "Pengumuman", icon: Megaphone },
-      { href: "/recap", label: "Rekap", icon: ChartBar },
+      { href: "/agents", label: "Agen" },
+      { href: "/announcements", label: "Pengumuman" },
+      { href: "/recap", label: "Rekap" },
     ],
   },
   {
     label: "Sistem",
     items: [
-      { href: "/settings", label: "Pengaturan", icon: GearSix },
-      { href: "/audit-log", label: "Log audit", icon: ClockCounterClockwise },
+      { href: "/settings", label: "Pengaturan" },
+      { href: "/audit-log", label: "Log audit" },
     ],
   },
 ];
 
 export const agentNavItems: NavItem[] = [
-  { href: "/catalog", label: "Katalog", icon: Storefront },
-  { href: "/cart", label: "Keranjang", icon: ShoppingBag },
-  { href: "/orders", label: "Pesanan", icon: Package },
-  { href: "/announcements", label: "Info", icon: Info },
+  { href: "/catalog", label: "Katalog" },
+  { href: "/cart", label: "Keranjang" },
+  { href: "/orders", label: "Pesanan" },
+  { href: "/announcements", label: "Info" },
 ];
 
 export const isActivePath = (pathname: string, href: string): boolean =>
