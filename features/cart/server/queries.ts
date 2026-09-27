@@ -35,7 +35,7 @@ export const getCart = async (agentId: string): Promise<Cart> => {
   if (error) throw error;
   if (!rows.length) return emptyCart;
 
-  const editSlugs = await getEditableBatchSlugs([...new Set(rows.map((row) => row.po_batch_id))]);
+  const editSlugsPromise = getEditableBatchSlugs([...new Set(rows.map((row) => row.po_batch_id))]);
   const groupsByBatch = new Map<string, Omit<CartBatchGroup, "dpAmount" | "subtotal"> & { subtotal: number }>();
   for (const row of rows) {
     const line: CartLine = {
@@ -54,7 +54,7 @@ export const getCart = async (agentId: string): Promise<Cart> => {
       poBatchId: row.po_batch_id,
       batchLabel: row.batch_label,
       productName: row.product_name,
-      editSlug: editSlugs.get(row.po_batch_id) ?? null,
+      editSlug: null,
       lines: [],
       totalPcs: 0,
       subtotal: 0,
@@ -65,15 +65,18 @@ export const getCart = async (agentId: string): Promise<Cart> => {
     groupsByBatch.set(row.po_batch_id, group);
   }
 
-  const groups = await Promise.all(
-    [...groupsByBatch.values()].map(async (group) => {
-      const subtotal = toRupiah(group.subtotal);
-      return { ...group, subtotal, dpAmount: subtotal > 0 ? await getDpAmount(subtotal) : toRupiah(0) };
-    }),
-  );
+  const [editSlugs, groups] = await Promise.all([
+    editSlugsPromise,
+    Promise.all(
+      [...groupsByBatch.values()].map(async (group) => {
+        const subtotal = toRupiah(group.subtotal);
+        return { ...group, subtotal, dpAmount: subtotal > 0 ? await getDpAmount(subtotal) : toRupiah(0) };
+      }),
+    ),
+  ]);
 
   return {
-    groups,
+    groups: groups.map((group) => ({ ...group, editSlug: editSlugs.get(group.poBatchId) ?? null })),
     totalPcs: groups.reduce((sum, group) => sum + group.totalPcs, 0),
     subtotal: toRupiah(groups.reduce((sum, group) => sum + group.subtotal, 0)),
     dpAmount: toRupiah(groups.reduce((sum, group) => sum + group.dpAmount, 0)),
