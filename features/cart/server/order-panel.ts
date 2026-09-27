@@ -1,5 +1,5 @@
 import "server-only";
-import { getBatchCartQuantities, getGridVariants } from "@/features/cart/server/queries";
+import { getCartVariantQuantities, getGridVariants } from "@/features/cart/server/queries";
 import { getCatalogProduct, type CatalogProduct } from "@/features/catalog/server/queries";
 import { getSettings } from "@/features/settings/server/queries";
 import type { OrderPanelData } from "@/features/cart/components/order-panel";
@@ -7,14 +7,17 @@ import type { OrderPanelData } from "@/features/cart/components/order-panel";
 export type OrderPanelLoad = { product: CatalogProduct; data: OrderPanelData };
 
 export const loadOrderPanel = async (agentId: string, slug: string): Promise<OrderPanelLoad | null> => {
-  const product = await getCatalogProduct(slug);
-  if (!product) return null;
-  const { openBatch } = product;
-  const [variants, savedQuantities, settings] = await Promise.all([
-    getGridVariants(product.id),
-    getBatchCartQuantities(agentId, openBatch.id),
+  const [product, variants, cartQuantities, settings] = await Promise.all([
+    getCatalogProduct(slug),
+    getGridVariants(slug),
+    getCartVariantQuantities(agentId),
     getSettings(),
   ]);
+  if (!product) return null;
+  const { openBatch } = product;
+  const savedQuantities = Object.fromEntries(
+    cartQuantities.filter(({ poBatchId }) => poBatchId === openBatch.id).map(({ variantId, qty }) => [variantId, qty]),
+  );
   return {
     product,
     data: {

@@ -90,33 +90,32 @@ export type GridVariant = {
   sizeCode: string;
 };
 
-export const getGridVariants = async (productId: string): Promise<GridVariant[]> => {
+export const getGridVariants = async (productSlug: string): Promise<GridVariant[]> => {
   const { data, error } = await getAdminClient()
     .from("product_variants")
-    .select("id, color_id, size_code")
-    .eq("product_id", productId)
+    .select("id, color_id, size_code, products!inner(slug)")
+    .eq("products.slug", productSlug)
     .eq("is_active", true);
   if (error) throw error;
   return data.map(({ id, color_id, size_code }) => ({ id, colorId: color_id, sizeCode: size_code }));
 };
 
-export const getBatchCartQuantities = async (agentId: string, poBatchId: string): Promise<Record<string, number>> => {
-  const cartId = await getCartId(agentId);
-  if (!cartId) return {};
+export type CartVariantQuantity = { poBatchId: string; variantId: string; qty: number };
+
+export const getCartVariantQuantities = async (agentId: string): Promise<CartVariantQuantity[]> => {
   const { data, error } = await getAdminClient()
-    .from("cart_items")
-    .select("variant_id, qty")
-    .eq("cart_id", cartId)
-    .eq("po_batch_id", poBatchId)
-    .not("variant_id", "is", null);
+    .from("carts")
+    .select("cart_items(po_batch_id, variant_id, qty)")
+    .eq("agent_id", agentId)
+    .maybeSingle();
   if (error) throw error;
-  return Object.fromEntries(data.map(({ variant_id, qty }) => [variant_id, qty]));
+  return (data?.cart_items ?? []).flatMap(({ po_batch_id, variant_id, qty }) =>
+    variant_id === null ? [] : [{ poBatchId: po_batch_id, variantId: variant_id, qty }],
+  );
 };
 
 export const getCartItemCount = async (agentId: string): Promise<number> => {
-  const cartId = await getCartId(agentId);
-  if (!cartId) return 0;
-  const { data, error } = await getAdminClient().from("cart_items").select("qty").eq("cart_id", cartId);
+  const { data, error } = await getAdminClient().from("carts").select("cart_items(qty)").eq("agent_id", agentId).maybeSingle();
   if (error) throw error;
-  return data.reduce((sum, { qty }) => sum + qty, 0);
+  return (data?.cart_items ?? []).reduce((sum, { qty }) => sum + qty, 0);
 };
