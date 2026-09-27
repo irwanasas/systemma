@@ -161,3 +161,22 @@ export const ListFilterSelect = ({ id, param, label, allLabel, options }: ListFi
     </div>
   );
 };
+
+export const DateRangeFilter = ({ from, to }: { from: string | null; to: string | null }): React.ReactNode => {
+  const router = useRouter();
+  const hrefWith = useHrefWith();
+  const apply = (param: "from" | "to", value: string): void =>
+    router.replace(hrefWith({ [param]: value || null, page: null }), { scroll: false });
+  return (
+    <div className="flex flex-wrap items-end gap-3">
+      <div className="!w-auto">
+        <label htmlFor="range-from">Dari tanggal</label>
+        <input id="range-from" type="date" defaultValue={from ?? ""} key={`from-${from}`} onChange={(event) => apply("from", event.target.value)} />
+      </div>
+      <div className="!w-auto">
+        <label htmlFor="range-to">Sampai tanggal</label>
+        <input id="range-to" type="date" defaultValue={to ?? ""} key={`to-${to}`} onChange={(event) => apply("to", event.target.value)} />
+      </div>
+    </div>
+  );
+};

@@ -1,6 +1,6 @@
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
-const isValidDate = (value: unknown): value is string => {
+export const isValidDate = (value: unknown): value is string => {
   if (typeof value !== "string" || !DATE_PATTERN.test(value)) return false;
   const date = new Date(`${value}T00:00:00Z`);
   return !Number.isNaN(date.getTime()) && date.toISOString().startsWith(value);
@@ -16,7 +16,7 @@ export type RecapPeriod = {
 export const jakartaToday = (): string =>
   new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
 
-const nextDay = (date: string): string => {
+export const nextDay = (date: string): string => {
   const next = new Date(`${date}T00:00:00Z`);
   next.setUTCDate(next.getUTCDate() + 1);
   return next.toISOString().slice(0, 10);

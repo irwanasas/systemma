@@ -34,3 +34,18 @@ const shortDateTimeFormatter = new Intl.DateTimeFormat("id-ID", {
 });
 
 export const formatShortDateTime = (value: string | Date): string => shortDateTimeFormatter.format(new Date(value));
+
+const relativeFormatter = new Intl.RelativeTimeFormat("id-ID", { numeric: "auto" });
+
+export const formatRelativeTime = (value: string, now: number = Date.now()): string => {
+  const seconds = Math.round((new Date(value).getTime() - now) / 1000);
+  const units: [Intl.RelativeTimeFormatUnit, number][] = [
+    ["day", 86400],
+    ["hour", 3600],
+    ["minute", 60],
+  ];
+  if (Math.abs(seconds) < 60) return "baru saja";
+  if (Math.abs(seconds) >= 7 * 86400) return formatShortDateTime(value);
+  const [unit, size] = units.find(([, unitSeconds]) => Math.abs(seconds) >= unitSeconds) ?? ["minute", 60];
+  return relativeFormatter.format(Math.round(seconds / size), unit);
+};

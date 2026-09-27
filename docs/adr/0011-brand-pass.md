@@ -61,3 +61,19 @@ Status: accepted
 
 - Moving from an admin page into `/orders` (the `(shared)` group) can briefly show the previous page's skeleton shape.
 - `proxy.ts` still excludes any path starting with `login` from the session check. This predates this pass; such paths 404.
+
+## Follow-ups
+
+- Softer palette:
+  - Brand `#7a4536` (light) and `#3a2621` (dark); ochre `#e8c287` / `#e2bd83`; primary `#a8573f` / `#e0937a`.
+  - Softer rose, sand and status tints.
+  - Muted chart series: terracotta `#c0725a`, honey (light `#be8528`, darkened to 3.07:1; dark `#d9a34a`), mocha `#8c6a5a`, rose `#b77e72`.
+  - All text pairs are AA; all series are at least 3:1 in both themes.
+- Rekap daily order value is a single-color bar chart; the dashboard keeps the weekly line.
+- Notifications left the dashboard:
+  - The admin bell opens a Radix Popover anchored below it, the one exception to centered dialogs. It spans the viewport width minus 16px below 640px.
+  - The panel shows the 10 latest. Clicking an item marks it read and opens its order (or the DP review queue for proofs). It also has "Tandai semua dibaca" and "Lihat semua".
+  - `/notifications` (admin, in the sidebar under Operasional) filters by type, date range (Rekap presets plus dates) and unread status. Filters live in the URL, and filtering and paging run in SQL.
+  - Rows can be marked read or unread. The bulk "Tandai semua dibaca" applies to the current filter.
+  - The existing `notifications` columns (`kind`, `created_at`, `read_at`) cover every filter, so there were no schema changes.
+

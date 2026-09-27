@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { Icon } from "@phosphor-icons/react";
 import {
-  Bell,
   CalendarX,
   CaretRight,
   CheckCircle,
@@ -10,16 +9,11 @@ import {
   Megaphone,
   Plus,
   Receipt,
-  ShoppingCartSimple,
   Timer,
   Wallet,
-  XCircle,
 } from "@phosphor-icons/react/ssr";
 import { ChartCard } from "@/components/charts/chart-card";
 import { Button } from "@/components/ui/button";
-import { ActionForm } from "@/components/ui/action-form";
-import { DateTime } from "@/components/ui/date-time";
-import { EmptyState } from "@/components/ui/empty-state";
 import { SectionCard } from "@/components/ui/section-card";
 import { CreateAgentForm } from "@/features/auth/components/create-agent-form";
 import { firstWeekStart, weeklyValues } from "@/features/dashboard/buckets";
@@ -30,36 +24,26 @@ import { jakartaToday, parseRecapPeriod } from "@/features/recap/period";
 import { getRecapRows } from "@/features/recap/server/queries";
 import { RECAP_CATEGORIES, summarizeRecap } from "@/features/recap/summarize";
 import { getSettings } from "@/features/settings/server/queries";
-import { markAllNotificationsRead } from "@/features/notifications/server/actions";
-import { getDashboardCounts, listNotifications } from "@/features/notifications/server/queries";
-import { notificationLabels, type NotificationKind } from "@/features/notifications/types";
+import { getDashboardCounts } from "@/features/notifications/server/queries";
 import { requireRole } from "@/lib/auth/require-role";
 import { cn } from "@/lib/utils";
-
-const kindIcons: Record<NotificationKind, Icon> = {
-  ORDER_PLACED: ShoppingCartSimple,
-  ORDER_CANCELLED: XCircle,
-  PAYMENT_SUBMITTED: Receipt,
-};
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 const DashboardPage = async (): Promise<React.ReactNode> => {
-  const user = await requireRole("admin");
+  await requireRole("admin");
   const now = new Date();
   const today = jakartaToday();
   const endOfToday = new Date(new Date(`${today}T00:00:00+07:00`).getTime() + DAY_MS).toISOString();
   const weekStart = new Date(`${firstWeekStart(today, 8)}T00:00:00+07:00`).toISOString();
-  const [counts, attention, notifications, orderValues, recapRows, products, settings] = await Promise.all([
+  const [counts, attention, orderValues, recapRows, products, settings] = await Promise.all([
     getDashboardCounts(),
     getAttentionCounts(now, endOfToday),
-    listNotifications(user.id),
     listOrderValues(weekStart, endOfToday),
     getRecapRows(parseRecapPeriod(undefined, undefined)),
     listProductOptions(),
     getSettings(),
   ]);
-  const unreadCount = notifications.filter(({ isRead }) => !isRead).length;
   const qtyByCategory = summarizeRecap(recapRows).qtyByCategory;
   const tiles: { href: string; label: string; value: number; icon: Icon; urgent: boolean }[] = [
     {
@@ -205,79 +189,6 @@ const DashboardPage = async (): Promise<React.ReactNode> => {
         />
       </div>
 
-      <SectionCard
-        id="notifications-heading"
-        title={
-          <span className="flex items-center gap-2">
-            Notifikasi
-            {unreadCount > 0 && (
-              <span className="rounded-full bg-primary px-2 py-0.5 font-sans text-xs font-semibold tracking-normal text-primary-foreground tabular-nums">
-                {unreadCount} belum dibaca
-              </span>
-            )}
-          </span>
-        }
-        action={
-          unreadCount > 0 && (
-            <ActionForm
-              action={markAllNotificationsRead}
-              submitLabel="Tandai semua sudah dibaca"
-              tone="ghost"
-              pendingLabel="Menyimpan…"
-              buttonClassName="min-h-9 px-3"
-            />
-          )
-        }
-      >
-        {notifications.length === 0 ? (
-          <EmptyState
-            icon={Bell}
-            title="Belum ada notifikasi"
-            description="Pesanan baru dan bukti DP akan muncul di sini."
-          />
-        ) : (
-          <ul className="-mx-4 divide-y divide-border sm:-mx-5">
-            {notifications.map(({ id, kind, orderId, orderNumber, agentName, agentCode, isRead, createdAt }) => {
-              const KindIcon = kindIcons[kind];
-              return (
-                <li
-                  key={id}
-                  className={cn("flex items-start gap-3 px-4 py-3 sm:px-5", !isRead && "bg-primary-soft/40")}
-                >
-                  <span className="relative mt-0.5 shrink-0">
-                    <KindIcon aria-hidden="true" className="size-5 text-muted-foreground" />
-                    {!isRead && (
-                      <span
-                        aria-hidden="true"
-                        className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-primary"
-                      />
-                    )}
-                  </span>
-                  <span className="flex min-w-0 flex-auto flex-col gap-0.5">
-                    <span className="text-ui">
-                      {!isRead && <span className="sr-only">Baru · </span>}
-                      <span className={cn(!isRead && "font-semibold")}>{notificationLabels[kind]}</span> · {agentName} (
-                      {agentCode})
-                    </span>
-                    <span className="text-sm text-muted-foreground">
-                      {orderId ? (
-                        <Link href={`/orders/${orderId}`} className="font-medium">
-                          {orderNumber}
-                        </Link>
-                      ) : (
-                        orderNumber
-                      )}
-                    </span>
-                  </span>
-                  <span className="shrink-0 text-sm text-muted-foreground">
-                    <DateTime value={createdAt} />
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-      </SectionCard>
     </main>
   );
 };

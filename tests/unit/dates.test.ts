@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatDateTime, formatShortDateTime, isoToJakartaInput, jakartaInputToIso } from "@/lib/dates";
+import { formatDateTime, formatShortDateTime, isoToJakartaInput, jakartaInputToIso, formatRelativeTime } from "@/lib/dates";
 
 describe("dates", () => {
   it("reads datetime-local input as Asia/Jakarta time", () => {
@@ -25,3 +25,19 @@ describe("formatShortDateTime", () => {
     expect(formatShortDateTime("2026-09-26T11:36:00.000Z")).toBe("26 Sep, 18.36");
   });
 });
+
+describe("formatRelativeTime", () => {
+  const now = new Date("2026-09-27T10:00:00Z").getTime();
+
+  it("describes recent times relative to now", () => {
+    expect(formatRelativeTime("2026-09-27T09:59:30Z", now)).toBe("baru saja");
+    expect(formatRelativeTime("2026-09-27T09:55:00Z", now)).toBe("5 menit yang lalu");
+    expect(formatRelativeTime("2026-09-27T07:00:00Z", now)).toBe("3 jam yang lalu");
+    expect(formatRelativeTime("2026-09-26T10:00:00Z", now)).toBe("kemarin");
+  });
+
+  it("falls back to the short date after a week", () => {
+    expect(formatRelativeTime("2026-09-01T03:00:00Z", now)).toBe("1 Sep, 10.00");
+  });
+});
+

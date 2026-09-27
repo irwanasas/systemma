@@ -120,3 +120,10 @@ Screenshots are in `docs/ui/brand-after/` (26 screens at 375 and 1440, light and
 
 Needs client input: the real logo and the landing contact details.
 
+## Follow-ups after the brand pass
+
+- Softer palette.
+- Rekap daily bars.
+- Notification panel and `/notifications` page; the dashboard no longer lists notifications.
+- Details in ADR 0011, "Follow-ups".
+

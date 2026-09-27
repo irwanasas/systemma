@@ -8,10 +8,10 @@ import { ThemeToggle } from "@/components/theme/theme-toggle";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import type { CurrentUser } from "@/features/auth/types";
 import { getCartItemCount } from "@/features/cart/server/queries";
-import { countUnreadNotifications } from "@/features/notifications/server/queries";
+import { countUnreadNotifications, listNotifications } from "@/features/notifications/server/queries";
 
 const AdminShell = async ({ user, children }: { user: CurrentUser; children: React.ReactNode }): Promise<React.ReactNode> => {
-  const unreadCount = await countUnreadNotifications(user.id);
+  const [unreadCount, notifications] = await Promise.all([countUnreadNotifications(user.id), listNotifications(user.id, 10)]);
   return (
     <div data-density="compact" className="text-ui">
       <SidebarProvider>
@@ -27,7 +27,7 @@ const AdminShell = async ({ user, children }: { user: CurrentUser; children: Rea
             </span>
             <div className="ml-auto flex items-center gap-1">
               <ThemeToggle className="size-10" />
-              <NotificationBell unreadCount={unreadCount} />
+              <NotificationBell unreadCount={unreadCount} notifications={notifications} />
               <AccountMenu fullName={user.fullName} roleLabel="Admin" />
             </div>
           </header>

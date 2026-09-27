@@ -1,4 +1,5 @@
 import {
+  Bell,
   CalendarBlank,
   ChartBar,
   ClockCounterClockwise,
@@ -34,6 +35,7 @@ export const adminNavGroups: NavGroup[] = [
       { href: "/dashboard", label: "Dasbor", icon: SquaresFour },
       { href: "/orders", label: "Pesanan", icon: Receipt },
       { href: "/payments", label: "Bukti DP", icon: SealCheck },
+      { href: "/notifications", label: "Notifikasi", icon: Bell },
     ],
   },
   {

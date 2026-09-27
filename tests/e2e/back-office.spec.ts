@@ -49,13 +49,15 @@ test("admin settings, announcements, notifications and audit log", async ({ brow
   await orderLink.click();
   await expect(agent.getByText("BCA 1234567890 a.n. Aurora Hijab")).toBeVisible();
 
-  await admin.goto("/dashboard");
-  await expect(admin.getByRole("link", { name: /^Notifikasi, \d+ belum dibaca$/ })).toBeVisible();
-  const notification = admin.getByRole("listitem").filter({ hasText: orderNumber });
+  await admin.goto("/notifications?type=ORDER_PLACED&size=50");
+  const notification = admin.getByRole("list", { name: "Daftar notifikasi" }).getByRole("listitem").filter({ hasText: orderNumber }).first();
   await expect(notification).toContainText("Pesanan baru");
   await expect(notification).toContainText("e2e-notify");
-  await admin.getByRole("button", { name: "Tandai semua sudah dibaca" }).click();
-  await expect(admin.getByRole("link", { name: /^Notifikasi, \d+ belum dibaca$/ })).toHaveCount(0);
+  await admin.goto("/dashboard");
+  await admin.getByRole("button", { name: /^Notifikasi, \d+ belum dibaca$/ }).click();
+  const panel = admin.getByRole("dialog", { name: "Notifikasi" });
+  await panel.getByRole("button", { name: "Tandai semua dibaca" }).click();
+  await expect(admin.getByRole("button", { name: /^Notifikasi, \d+ belum dibaca$/ })).toHaveCount(0);
 
   await admin.goto("/audit-log?entity=settings");
   await expect(admin.getByRole("cell", { name: "Pengaturan diubah" }).first()).toBeVisible();

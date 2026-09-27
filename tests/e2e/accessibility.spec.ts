@@ -45,9 +45,18 @@ for (const colorScheme of ["light", "dark"] as const) {
     test(`admin pages have no WCAG 2.1 AA violations in ${colorScheme} theme`, async ({ page }) => {
       await login(page, "e2e-admin");
       await expectPath(page, "/dashboard");
-      for (const path of ["/dashboard", "/orders", "/payments", "/products", "/products/new", "/po-batches", "/agents", "/settings", "/audit-log", "/recap"]) {
+      for (const path of ["/dashboard", "/notifications", "/orders", "/payments", "/products", "/products/new", "/po-batches", "/agents", "/settings", "/audit-log", "/recap"]) {
         await expectNoViolations(page, path);
       }
+    });
+
+    test(`notification panel has no WCAG 2.1 AA violations in ${colorScheme} theme`, async ({ page }) => {
+      await login(page, "e2e-admin");
+      await expectPath(page, "/dashboard");
+      await page.getByRole("button", { name: /^Notifikasi/ }).click();
+      await expect(page.getByRole("dialog", { name: "Notifikasi" })).toBeVisible();
+      const { violations } = await new AxeBuilder({ page }).withTags(WCAG_TAGS).analyze();
+      expect(violations.map(({ id, nodes }) => `${id}: ${nodes.map(({ target }) => target.join(" ")).join(", ")}`)).toEqual([]);
     });
 
     test(`the page uses the ${colorScheme} theme`, async ({ page }) => {
